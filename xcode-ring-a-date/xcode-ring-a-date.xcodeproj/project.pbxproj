@@ -1,0 +1,557 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXContainerItemProxy section */
+		95945E3A2D8A4663004407A9 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 95945E212D8A4661004407A9 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 95945E282D8A4661004407A9;
+			remoteInfo = "xcode-ring-a-date";
+		};
+		95945E442D8A4663004407A9 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 95945E212D8A4661004407A9 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 95945E282D8A4661004407A9;
+			remoteInfo = "xcode-ring-a-date";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		95945E292D8A4661004407A9 /* xcode-ring-a-date.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "xcode-ring-a-date.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		95945E392D8A4663004407A9 /* xcode-ring-a-dateTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "xcode-ring-a-dateTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		95945E432D8A4663004407A9 /* xcode-ring-a-dateUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "xcode-ring-a-dateUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		95945E2B2D8A4661004407A9 /* xcode-ring-a-date */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "xcode-ring-a-date";
+			sourceTree = "<group>";
+		};
+		95945E3C2D8A4663004407A9 /* xcode-ring-a-dateTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "xcode-ring-a-dateTests";
+			sourceTree = "<group>";
+		};
+		95945E462D8A4663004407A9 /* xcode-ring-a-dateUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "xcode-ring-a-dateUITests";
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		95945E262D8A4661004407A9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		95945E362D8A4663004407A9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		95945E402D8A4663004407A9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		95945E202D8A4661004407A9 = {
+			isa = PBXGroup;
+			children = (
+				95945E2B2D8A4661004407A9 /* xcode-ring-a-date */,
+				95945E3C2D8A4663004407A9 /* xcode-ring-a-dateTests */,
+				95945E462D8A4663004407A9 /* xcode-ring-a-dateUITests */,
+				95945E2A2D8A4661004407A9 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		95945E2A2D8A4661004407A9 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				95945E292D8A4661004407A9 /* xcode-ring-a-date.app */,
+				95945E392D8A4663004407A9 /* xcode-ring-a-dateTests.xctest */,
+				95945E432D8A4663004407A9 /* xcode-ring-a-dateUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		95945E282D8A4661004407A9 /* xcode-ring-a-date */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 95945E4D2D8A4663004407A9 /* Build configuration list for PBXNativeTarget "xcode-ring-a-date" */;
+			buildPhases = (
+				95945E252D8A4661004407A9 /* Sources */,
+				95945E262D8A4661004407A9 /* Frameworks */,
+				95945E272D8A4661004407A9 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				95945E2B2D8A4661004407A9 /* xcode-ring-a-date */,
+			);
+			name = "xcode-ring-a-date";
+			packageProductDependencies = (
+			);
+			productName = "xcode-ring-a-date";
+			productReference = 95945E292D8A4661004407A9 /* xcode-ring-a-date.app */;
+			productType = "com.apple.product-type.application";
+		};
+		95945E382D8A4663004407A9 /* xcode-ring-a-dateTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 95945E502D8A4663004407A9 /* Build configuration list for PBXNativeTarget "xcode-ring-a-dateTests" */;
+			buildPhases = (
+				95945E352D8A4663004407A9 /* Sources */,
+				95945E362D8A4663004407A9 /* Frameworks */,
+				95945E372D8A4663004407A9 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				95945E3B2D8A4663004407A9 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				95945E3C2D8A4663004407A9 /* xcode-ring-a-dateTests */,
+			);
+			name = "xcode-ring-a-dateTests";
+			packageProductDependencies = (
+			);
+			productName = "xcode-ring-a-dateTests";
+			productReference = 95945E392D8A4663004407A9 /* xcode-ring-a-dateTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		95945E422D8A4663004407A9 /* xcode-ring-a-dateUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 95945E532D8A4663004407A9 /* Build configuration list for PBXNativeTarget "xcode-ring-a-dateUITests" */;
+			buildPhases = (
+				95945E3F2D8A4663004407A9 /* Sources */,
+				95945E402D8A4663004407A9 /* Frameworks */,
+				95945E412D8A4663004407A9 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				95945E452D8A4663004407A9 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				95945E462D8A4663004407A9 /* xcode-ring-a-dateUITests */,
+			);
+			name = "xcode-ring-a-dateUITests";
+			packageProductDependencies = (
+			);
+			productName = "xcode-ring-a-dateUITests";
+			productReference = 95945E432D8A4663004407A9 /* xcode-ring-a-dateUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		95945E212D8A4661004407A9 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1620;
+				LastUpgradeCheck = 1620;
+				TargetAttributes = {
+					95945E282D8A4661004407A9 = {
+						CreatedOnToolsVersion = 16.2;
+					};
+					95945E382D8A4663004407A9 = {
+						CreatedOnToolsVersion = 16.2;
+						TestTargetID = 95945E282D8A4661004407A9;
+					};
+					95945E422D8A4663004407A9 = {
+						CreatedOnToolsVersion = 16.2;
+						TestTargetID = 95945E282D8A4661004407A9;
+					};
+				};
+			};
+			buildConfigurationList = 95945E242D8A4661004407A9 /* Build configuration list for PBXProject "xcode-ring-a-date" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 95945E202D8A4661004407A9;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 95945E2A2D8A4661004407A9 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				95945E282D8A4661004407A9 /* xcode-ring-a-date */,
+				95945E382D8A4663004407A9 /* xcode-ring-a-dateTests */,
+				95945E422D8A4663004407A9 /* xcode-ring-a-dateUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		95945E272D8A4661004407A9 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		95945E372D8A4663004407A9 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		95945E412D8A4663004407A9 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		95945E252D8A4661004407A9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		95945E352D8A4663004407A9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		95945E3F2D8A4663004407A9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		95945E3B2D8A4663004407A9 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 95945E282D8A4661004407A9 /* xcode-ring-a-date */;
+			targetProxy = 95945E3A2D8A4663004407A9 /* PBXContainerItemProxy */;
+		};
+		95945E452D8A4663004407A9 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 95945E282D8A4661004407A9 /* xcode-ring-a-date */;
+			targetProxy = 95945E442D8A4663004407A9 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		95945E4B2D8A4663004407A9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		95945E4C2D8A4663004407A9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		95945E4E2D8A4663004407A9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"xcode-ring-a-date/Preview Content\"";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "jigo.xcode-ring-a-date";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		95945E4F2D8A4663004407A9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"xcode-ring-a-date/Preview Content\"";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "jigo.xcode-ring-a-date";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		95945E512D8A4663004407A9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "jigo.xcode-ring-a-dateTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/xcode-ring-a-date.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/xcode-ring-a-date";
+			};
+			name = Debug;
+		};
+		95945E522D8A4663004407A9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "jigo.xcode-ring-a-dateTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/xcode-ring-a-date.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/xcode-ring-a-date";
+			};
+			name = Release;
+		};
+		95945E542D8A4663004407A9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "jigo.xcode-ring-a-dateUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = "xcode-ring-a-date";
+			};
+			name = Debug;
+		};
+		95945E552D8A4663004407A9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "jigo.xcode-ring-a-dateUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = "xcode-ring-a-date";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		95945E242D8A4661004407A9 /* Build configuration list for PBXProject "xcode-ring-a-date" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				95945E4B2D8A4663004407A9 /* Debug */,
+				95945E4C2D8A4663004407A9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		95945E4D2D8A4663004407A9 /* Build configuration list for PBXNativeTarget "xcode-ring-a-date" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				95945E4E2D8A4663004407A9 /* Debug */,
+				95945E4F2D8A4663004407A9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		95945E502D8A4663004407A9 /* Build configuration list for PBXNativeTarget "xcode-ring-a-dateTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				95945E512D8A4663004407A9 /* Debug */,
+				95945E522D8A4663004407A9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		95945E532D8A4663004407A9 /* Build configuration list for PBXNativeTarget "xcode-ring-a-dateUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				95945E542D8A4663004407A9 /* Debug */,
+				95945E552D8A4663004407A9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 95945E212D8A4661004407A9 /* Project object */;
+}
