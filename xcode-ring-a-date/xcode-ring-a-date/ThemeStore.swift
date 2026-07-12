@@ -73,7 +73,7 @@ final class ThemeStore: ObservableObject {
     func saveCurrentAsPreset(named name: String) {
         let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
         let finalName = trimmed.isEmpty ? ThemeStorage.nextPaletteName() : trimmed
-        customPresets.append(ThemePreset(name: finalName, theme: theme))
+        customPresets.insert(ThemePreset(name: finalName, theme: theme), at: 0)
         ThemeStorage.saveCustomPresets(customPresets)
         ThemeStorage.bumpPaletteCounter()
     }
