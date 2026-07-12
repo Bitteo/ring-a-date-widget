@@ -19,13 +19,31 @@ final class ThemeStore: ObservableObject {
         }
     }
 
+    @Published private(set) var customPresets: [ThemePreset]
+
     init() {
         theme = ThemeStorage.load()
+        customPresets = ThemeStorage.loadCustomPresets()
     }
 
     /// The preset matching the current theme, if the user hasn't customized it.
-    var selectedPresetID: String? {
-        CalendarTheme.presets.first { $0.theme == theme }?.id
+    var selectedPresetID: UUID? {
+        (CalendarTheme.presets + customPresets).first { $0.theme == theme }?.id
+    }
+
+    /// Saves the current theme as a user preset. Falls back to the suggested
+    /// "Palette N" name when the given name is empty.
+    func saveCurrentAsPreset(named name: String) {
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        let finalName = trimmed.isEmpty ? ThemeStorage.nextPaletteName() : trimmed
+        customPresets.append(ThemePreset(name: finalName, theme: theme))
+        ThemeStorage.saveCustomPresets(customPresets)
+        ThemeStorage.bumpPaletteCounter()
+    }
+
+    func deletePreset(_ preset: ThemePreset) {
+        customPresets.removeAll { $0.id == preset.id }
+        ThemeStorage.saveCustomPresets(customPresets)
     }
 
     /// Binding for a single theme color, bridged to `Color` for ColorPicker.

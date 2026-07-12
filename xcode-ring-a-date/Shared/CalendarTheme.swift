@@ -60,11 +60,10 @@ struct CalendarTheme: Codable, Equatable {
 
 // MARK: - Presets
 
-struct ThemePreset: Identifiable {
-    let name: String
-    let theme: CalendarTheme
-
-    var id: String { name }
+struct ThemePreset: Identifiable, Codable, Equatable {
+    var id = UUID()
+    var name: String
+    var theme: CalendarTheme
 }
 
 extension CalendarTheme {
@@ -131,6 +130,8 @@ extension CalendarTheme {
 enum ThemeStorage {
     static let appGroupID = "group.jigo.xcode-ring-a-date"
     static let themeKey = "ringADate.theme"
+    static let customPresetsKey = "ringADate.customPresets"
+    static let paletteCounterKey = "ringADate.paletteCounter"
 
     static var defaults: UserDefaults {
         UserDefaults(suiteName: appGroupID) ?? .standard
@@ -147,5 +148,30 @@ enum ThemeStorage {
     static func save(_ theme: CalendarTheme) {
         guard let data = try? JSONEncoder().encode(theme) else { return }
         defaults.set(data, forKey: themeKey)
+    }
+
+    // MARK: User-created presets
+
+    static func loadCustomPresets() -> [ThemePreset] {
+        guard let data = defaults.data(forKey: customPresetsKey),
+              let presets = try? JSONDecoder().decode([ThemePreset].self, from: data) else {
+            return []
+        }
+        return presets
+    }
+
+    static func saveCustomPresets(_ presets: [ThemePreset]) {
+        guard let data = try? JSONEncoder().encode(presets) else { return }
+        defaults.set(data, forKey: customPresetsKey)
+    }
+
+    /// Default name offered for the next preset ("Palette 1", "Palette 2"...).
+    /// The counter advances on every creation, even if the user renames.
+    static func nextPaletteName() -> String {
+        "Palette \(defaults.integer(forKey: paletteCounterKey) + 1)"
+    }
+
+    static func bumpPaletteCounter() {
+        defaults.set(defaults.integer(forKey: paletteCounterKey) + 1, forKey: paletteCounterKey)
     }
 }

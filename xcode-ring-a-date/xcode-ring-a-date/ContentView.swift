@@ -11,6 +11,7 @@ import SwiftUI
 struct ContentView: View {
     @StateObject private var store = ThemeStore()
     @State private var previewFamily: PreviewFamily = .medium
+    @State private var showSavePresetSheet = false
 
     var body: some View {
         VStack(spacing: 16) {
@@ -33,6 +34,8 @@ struct ContentView: View {
                         ("Mese", \.monthRingHex),
                     ])
                     .padding(.horizontal, 20)
+                    savePresetButton
+                        .padding(.horizontal, 20)
                     footer
                         .padding(.horizontal, 20)
                 }
@@ -41,6 +44,11 @@ struct ContentView: View {
         }
         .padding(.top, 12)
         .background(Color(uiColor: .systemGroupedBackground))
+        .sheet(isPresented: $showSavePresetSheet) {
+            SavePresetSheet(store: store, defaultName: ThemeStorage.nextPaletteName())
+                .presentationDetents([.medium])
+                .presentationDragIndicator(.visible)
+        }
     }
 
     // MARK: - Preview
@@ -78,6 +86,18 @@ struct ContentView: View {
                         }
                         .frame(width: 96)
                     }
+                    ForEach(store.customPresets) { preset in
+                        PresetSwatch(preset: preset,
+                                     isSelected: store.selectedPresetID == preset.id) {
+                            store.theme = preset.theme
+                        }
+                        .frame(width: 96)
+                        .contextMenu {
+                            Button("Elimina", systemImage: "trash", role: .destructive) {
+                                store.deletePreset(preset)
+                            }
+                        }
+                    }
                 }
                 .padding(.horizontal, 20)
             }
@@ -108,6 +128,19 @@ struct ContentView: View {
         ColorPicker(label, selection: store.binding(for: keyPath), supportsOpacity: false)
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
+    }
+
+    // MARK: - Save preset
+
+    private var savePresetButton: some View {
+        Button {
+            showSavePresetSheet = true
+        } label: {
+            Label("Salva come preset", systemImage: "plus.circle.fill")
+                .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(.borderedProminent)
+        .controlSize(.large)
     }
 
     // MARK: - Footer
@@ -230,6 +263,63 @@ struct PresetSwatch: View {
             .strokeBorder(color, lineWidth: 3.5)
             .background(Circle().fill(preset.theme.peg))
             .frame(width: 16, height: 16)
+    }
+}
+
+// MARK: - Save preset drawer
+
+/// Bottom sheet to save the current combination as a preset: a live preview,
+/// a name field prefilled with "Palette N" that clears on first tap, and a
+/// save button. An empty name falls back to the suggested one.
+struct SavePresetSheet: View {
+    @ObservedObject var store: ThemeStore
+    let defaultName: String
+
+    @Environment(\.dismiss) private var dismiss
+    @State private var name: String
+    @FocusState private var nameFieldFocused: Bool
+
+    init(store: ThemeStore, defaultName: String) {
+        self.store = store
+        self.defaultName = defaultName
+        _name = State(initialValue: defaultName)
+    }
+
+    var body: some View {
+        VStack(spacing: 20) {
+            Text("Nuovo preset")
+                .font(.headline)
+                .padding(.top, 8)
+
+            RingADatePreviewCard(theme: store.theme, family: .medium)
+                .frame(maxWidth: .infinity)
+
+            TextField(defaultName, text: $name)
+                .focused($nameFieldFocused)
+                .submitLabel(.done)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+                .background(Color(uiColor: .secondarySystemBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                .onChange(of: nameFieldFocused) { _, focused in
+                    if focused && name == defaultName {
+                        name = ""
+                    }
+                }
+
+            Button {
+                store.saveCurrentAsPreset(named: name)
+                dismiss()
+            } label: {
+                Text("Salva")
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.borderedProminent)
+            .controlSize(.large)
+
+            Spacer(minLength: 0)
+        }
+        .padding(20)
     }
 }
 

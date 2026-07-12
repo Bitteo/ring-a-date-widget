@@ -29,6 +29,13 @@ struct ThemeTests {
         #expect(decoded == theme)
     }
 
+    @Test func customPresetSurvivesEncoding() throws {
+        let preset = ThemePreset(name: "Palette 1", theme: .classic)
+        let data = try JSONEncoder().encode([preset])
+        let decoded = try JSONDecoder().decode([ThemePreset].self, from: data)
+        #expect(decoded == [preset])
+    }
+
     @Test func presetsAreDistinctAndNamed() {
         let presets = CalendarTheme.presets
         #expect(!presets.isEmpty)
