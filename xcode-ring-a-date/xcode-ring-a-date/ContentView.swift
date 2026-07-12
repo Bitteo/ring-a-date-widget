@@ -13,35 +13,32 @@ struct ContentView: View {
     @State private var previewFamily: PreviewFamily = .large
 
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 28) {
-                    previewSection
-                    presetSection
-                    customSection
-                    footer
-                }
-                .padding(20)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 28) {
+                previewSection
+                presetSection
+                customSection
+                footer
             }
-            .background(Color(uiColor: .systemGroupedBackground))
-            .navigationTitle("Ring a Date")
+            .padding(20)
         }
+        .background(Color(uiColor: .systemGroupedBackground))
     }
 
     // MARK: - Preview
 
     private var previewSection: some View {
         VStack(spacing: 16) {
-            RingADatePreviewCard(theme: store.theme, family: previewFamily)
-                .frame(maxWidth: .infinity)
-                .animation(.easeInOut(duration: 0.2), value: store.theme)
-
             Picker("Formato", selection: $previewFamily) {
                 ForEach(PreviewFamily.allCases) { family in
                     Text(family.label).tag(family)
                 }
             }
             .pickerStyle(.segmented)
+
+            RingADatePreviewCard(theme: store.theme, family: previewFamily)
+                .frame(maxWidth: .infinity)
+                .animation(.easeInOut(duration: 0.2), value: store.theme)
         }
     }
 
