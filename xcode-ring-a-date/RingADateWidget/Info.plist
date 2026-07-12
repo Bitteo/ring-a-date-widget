@@ -7,9 +7,5 @@
 		<key>NSExtensionPointIdentifier</key>
 		<string>com.apple.widgetkit-extension</string>
 	</dict>
-	<key>CFBundleDisplayName</key>
-	<string>Ring-a-Date</string>
-	<key>NSHumanReadableCopyright</key>
-	<string>A digital recreation of the classic Ring-a-Date perpetual calendar</string>
 </dict>
 </plist>

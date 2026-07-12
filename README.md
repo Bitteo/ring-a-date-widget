@@ -1,31 +1,59 @@
-# Ring-a-Date Widget
+# Ring a Date
 
-A digital recreation of the classic Ring-a-Date perpetual calendar as an iPhone widget.
+A digital recreation of the classic "Ring a Date" perpetual calendar as an iOS
+home screen widget, with a minimal companion app to customize its colors.
 
-## Overview
+## What it does
 
-This project aims to recreate the look, feel, and functionality of the Ring-a-Date perpetual calendar as an iOS widget. The original calendar uses three movable rings to mark the current day, date, and month, and this digital version will maintain that interactive experience while adding modern customization options.
+- **Widget** (small, medium and large): draws the perpetual calendar board —
+  a row of weekdays, dates 1–31 on four rows of eight columns, and months on
+  two rows — with rings marking today's weekday, date and month. The date
+  advances by itself at midnight.
+  - *Large*: the full board, faithful to the original layout and spacing.
+  - *Medium*: weekday and month pegs beside the full date grid.
+  - *Small*: weekday, date and month pegs stacked, so they stay legible.
+- **App**: a single screen with a live preview of the widget in all three
+  sizes, six color presets (Classico, Avorio, Notte, Terracotta, Oceano,
+  Ardesia) and a custom editor for every color: background, pegs, text and
+  the three rings (day, date, month). Changes reach the widget immediately.
 
-## Features
+## Project structure
 
-- Three movable digital rings to mark day, date, and month
-- Manual date updating to preserve the interactive experience of the original
-- Customizable background colors
-- Customizable ring colors
-- Multiple widget sizes
+```
+xcode-ring-a-date/
+├── Shared/                      Compiled into both the app and the widget
+│   ├── CalendarTheme.swift      Theme model, presets, App Group storage
+│   └── RingADateFace.swift      The calendar face (full/split/compact layouts)
+├── xcode-ring-a-date/           App target
+│   ├── xcode_ring_a_dateApp.swift
+│   ├── ThemeStore.swift         Observable theme + widget reload
+│   ├── ContentView.swift        Preview, presets, color editor
+│   └── xcode-ring-a-date.entitlements
+└── RingADateWidget/             Widget extension target
+    ├── RingADateWidget.swift    Bundle, timeline provider, entry view
+    ├── Info.plist
+    └── RingADateWidget.entitlements
+```
 
-## Implementation Plan
+The app and the widget share the theme through the App Group
+`group.jigo.xcode-ring-a-date` (see `ThemeStorage` in
+`Shared/CalendarTheme.swift`). If the group container is unavailable the code
+falls back to standard user defaults, so the app runs even before the
+capability is provisioned — but the widget will only pick up custom colors
+once the App Group is active on **both** targets.
 
-1. Create a SwiftUI-based iOS widget extension
-2. Design the calendar face with all days, dates, and months
-3. Implement draggable rings that snap to appropriate positions
-4. Create a configuration interface for customization options
-5. Implement widget timeline provider for updates
+## Setup
 
-## Design Reference
+1. Open `xcode-ring-a-date.xcodeproj` in Xcode 16 or later.
+2. Select your development team on the `xcode-ring-a-date` and
+   `RingADateWidgetExtension` targets (Signing & Capabilities).
+3. Make sure the App Group `group.jigo.xcode-ring-a-date` is registered for
+   your team. If you need a different identifier, change it in the two
+   `.entitlements` files and in `ThemeStorage.appGroupID`.
+4. Run the app once, then add the widget from the Home Screen
+   (long-press → Edit → Add Widget → Ring a Date).
 
-The widget will be based on the classic Ring-a-Date perpetual calendar designed by Giorgio Della Beffa, featuring:
-- Square layout
-- Days of the week, dates (1-31), and months displayed on the face
-- Three movable rings that highlight the current information
-- Customizable color schemes
+## Design reference
+
+Based on the classic Ring-a-Date perpetual calendar: a square board of pegs
+with three movable rings for the current weekday, date and month.

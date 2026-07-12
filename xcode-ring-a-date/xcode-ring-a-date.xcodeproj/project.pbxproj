@@ -6,7 +6,18 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		AB12CD01000000000000000E /* RingADateWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = AB12CD010000000000000001 /* RingADateWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
+		AB12CD01000000000000000B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 95945E212D8A4661004407A9 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AB12CD010000000000000004;
+			remoteInfo = RingADateWidgetExtension;
+		};
 		95945E3A2D8A4663004407A9 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 95945E212D8A4661004407A9 /* Project object */;
@@ -23,15 +34,64 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		AB12CD01000000000000000D /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				AB12CD01000000000000000E /* RingADateWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		AB12CD010000000000000001 /* RingADateWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = RingADateWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		95945E292D8A4661004407A9 /* xcode-ring-a-date.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "xcode-ring-a-date.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		95945E392D8A4663004407A9 /* xcode-ring-a-dateTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "xcode-ring-a-dateTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		95945E432D8A4663004407A9 /* xcode-ring-a-dateUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "xcode-ring-a-dateUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		AB12CD01000000000000000F /* Exceptions for "RingADateWidget" folder in "RingADateWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+				RingADateWidget.entitlements,
+			);
+			target = AB12CD010000000000000004 /* RingADateWidgetExtension */;
+		};
+		AB12CD010000000000000010 /* Exceptions for "xcode-ring-a-date" folder in "xcode-ring-a-date" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"xcode-ring-a-date.entitlements",
+			);
+			target = 95945E282D8A4661004407A9 /* xcode-ring-a-date */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		AB12CD010000000000000002 /* RingADateWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				AB12CD01000000000000000F /* Exceptions for "RingADateWidget" folder in "RingADateWidgetExtension" target */,
+			);
+			path = RingADateWidget;
+			sourceTree = "<group>";
+		};
+		AB12CD010000000000000003 /* Shared */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Shared;
+			sourceTree = "<group>";
+		};
 		95945E2B2D8A4661004407A9 /* xcode-ring-a-date */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				AB12CD010000000000000010 /* Exceptions for "xcode-ring-a-date" folder in "xcode-ring-a-date" target */,
+			);
 			path = "xcode-ring-a-date";
 			sourceTree = "<group>";
 		};
@@ -48,6 +108,13 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		AB12CD010000000000000006 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		95945E262D8A4661004407A9 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -76,6 +143,8 @@
 			isa = PBXGroup;
 			children = (
 				95945E2B2D8A4661004407A9 /* xcode-ring-a-date */,
+				AB12CD010000000000000003 /* Shared */,
+				AB12CD010000000000000002 /* RingADateWidget */,
 				95945E3C2D8A4663004407A9 /* xcode-ring-a-dateTests */,
 				95945E462D8A4663004407A9 /* xcode-ring-a-dateUITests */,
 				95945E2A2D8A4661004407A9 /* Products */,
@@ -86,6 +155,7 @@
 			isa = PBXGroup;
 			children = (
 				95945E292D8A4661004407A9 /* xcode-ring-a-date.app */,
+				AB12CD010000000000000001 /* RingADateWidgetExtension.appex */,
 				95945E392D8A4663004407A9 /* xcode-ring-a-dateTests.xctest */,
 				95945E432D8A4663004407A9 /* xcode-ring-a-dateUITests.xctest */,
 			);
@@ -95,6 +165,29 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		AB12CD010000000000000004 /* RingADateWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AB12CD010000000000000008 /* Build configuration list for PBXNativeTarget "RingADateWidgetExtension" */;
+			buildPhases = (
+				AB12CD010000000000000005 /* Sources */,
+				AB12CD010000000000000006 /* Frameworks */,
+				AB12CD010000000000000007 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				AB12CD010000000000000002 /* RingADateWidget */,
+				AB12CD010000000000000003 /* Shared */,
+			);
+			name = RingADateWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = RingADateWidgetExtension;
+			productReference = AB12CD010000000000000001 /* RingADateWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		95945E282D8A4661004407A9 /* xcode-ring-a-date */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 95945E4D2D8A4663004407A9 /* Build configuration list for PBXNativeTarget "xcode-ring-a-date" */;
@@ -102,13 +195,16 @@
 				95945E252D8A4661004407A9 /* Sources */,
 				95945E262D8A4661004407A9 /* Frameworks */,
 				95945E272D8A4661004407A9 /* Resources */,
+				AB12CD01000000000000000D /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				AB12CD01000000000000000C /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				95945E2B2D8A4661004407A9 /* xcode-ring-a-date */,
+				AB12CD010000000000000003 /* Shared */,
 			);
 			name = "xcode-ring-a-date";
 			packageProductDependencies = (
@@ -173,6 +269,9 @@
 				LastSwiftUpdateCheck = 1620;
 				LastUpgradeCheck = 1620;
 				TargetAttributes = {
+					AB12CD010000000000000004 = {
+						CreatedOnToolsVersion = 16.2;
+					};
 					95945E282D8A4661004407A9 = {
 						CreatedOnToolsVersion = 16.2;
 					};
@@ -201,6 +300,7 @@
 			projectRoot = "";
 			targets = (
 				95945E282D8A4661004407A9 /* xcode-ring-a-date */,
+				AB12CD010000000000000004 /* RingADateWidgetExtension */,
 				95945E382D8A4663004407A9 /* xcode-ring-a-dateTests */,
 				95945E422D8A4663004407A9 /* xcode-ring-a-dateUITests */,
 			);
@@ -208,6 +308,13 @@
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		AB12CD010000000000000007 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		95945E272D8A4661004407A9 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -232,6 +339,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		AB12CD010000000000000005 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		95945E252D8A4661004407A9 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -256,6 +370,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		AB12CD01000000000000000C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AB12CD010000000000000004 /* RingADateWidgetExtension */;
+			targetProxy = AB12CD01000000000000000B /* PBXContainerItemProxy */;
+		};
 		95945E3B2D8A4663004407A9 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 95945E282D8A4661004407A9 /* xcode-ring-a-date */;
@@ -388,11 +507,64 @@
 			};
 			name = Release;
 		};
+		AB12CD010000000000000009 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "RingADateWidget/RingADateWidget.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = RingADateWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Ring a Date";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "jigo.xcode-ring-a-date.RingADateWidget";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		AB12CD01000000000000000A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "RingADateWidget/RingADateWidget.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = RingADateWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Ring a Date";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "jigo.xcode-ring-a-date.RingADateWidget";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		95945E4E2D8A4663004407A9 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "xcode-ring-a-date/xcode-ring-a-date.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"xcode-ring-a-date/Preview Content\"";
@@ -421,6 +593,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "xcode-ring-a-date/xcode-ring-a-date.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"xcode-ring-a-date/Preview Content\"";
@@ -515,6 +688,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		AB12CD010000000000000008 /* Build configuration list for PBXNativeTarget "RingADateWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AB12CD010000000000000009 /* Debug */,
+				AB12CD01000000000000000A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		95945E242D8A4661004407A9 /* Build configuration list for PBXProject "xcode-ring-a-date" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
