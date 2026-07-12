@@ -12,6 +12,7 @@ struct ContentView: View {
     @StateObject private var store = ThemeStore()
     @State private var previewFamily: PreviewFamily = .medium
     @State private var showSavePresetSheet = false
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
         VStack(spacing: 16) {
@@ -36,6 +37,8 @@ struct ContentView: View {
                     .padding(.horizontal, 20)
                     savePresetButton
                         .padding(.horizontal, 20)
+                    modeSection
+                        .padding(.horizontal, 20)
                     footer
                         .padding(.horizontal, 20)
                 }
@@ -44,6 +47,12 @@ struct ContentView: View {
         }
         .padding(.top, 12)
         .background(Color(uiColor: .systemGroupedBackground))
+        .onChange(of: scenePhase) { _, phase in
+            // The widget may have moved rings while we were in background.
+            if phase == .active {
+                store.refreshExternalState()
+            }
+        }
         .sheet(isPresented: $showSavePresetSheet) {
             SavePresetSheet(store: store, defaultName: ThemeStorage.nextPaletteName())
                 .presentationDetents([.medium])
@@ -62,7 +71,8 @@ struct ContentView: View {
             }
             .pickerStyle(.segmented)
 
-            RingADatePreviewCard(theme: store.theme, family: previewFamily)
+            RingADatePreviewCard(theme: store.theme, positions: store.previewPositions,
+                                 family: previewFamily)
                 .frame(maxWidth: .infinity)
                 .frame(height: 220)
                 .animation(.easeInOut(duration: 0.2), value: store.theme)
@@ -143,6 +153,30 @@ struct ContentView: View {
         .controlSize(.large)
     }
 
+    // MARK: - Widget update mode
+
+    private var modeSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            sectionTitle("Aggiornamento")
+            VStack(alignment: .leading, spacing: 12) {
+                Picker("Aggiornamento", selection: $store.mode) {
+                    Text("Automatico").tag(CalendarMode.automatic)
+                    Text("Manuale").tag(CalendarMode.manual)
+                }
+                .pickerStyle(.segmented)
+
+                Text(store.mode == .manual
+                     ? "Come l'originale: gli anelli restano dove li metti. Tocca le pastiglie sul widget per spostarli, giorno dopo giorno."
+                     : "Gli anelli si spostano da soli sulla data di oggi, a mezzanotte.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
+            .padding(16)
+            .background(Color(uiColor: .secondarySystemGroupedBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        }
+    }
+
     // MARK: - Footer
 
     private var footer: some View {
@@ -186,13 +220,14 @@ enum PreviewFamily: String, CaseIterable, Identifiable {
 /// Mimics the widget's shape and margins on the Home Screen.
 struct RingADatePreviewCard: View {
     let theme: CalendarTheme
+    let positions: RingPositions
     let family: PreviewFamily
 
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 24, style: .continuous)
                 .fill(theme.background)
-            RingADateFace(theme: theme, date: .now, layout: family.layout)
+            RingADateFace(theme: theme, positions: positions, layout: family.layout)
                 .padding(padding)
         }
         .aspectRatio(aspectRatio, contentMode: .fit)
@@ -291,7 +326,8 @@ struct SavePresetSheet: View {
                 .font(.headline)
                 .padding(.top, 8)
 
-            RingADatePreviewCard(theme: store.theme, family: .medium)
+            RingADatePreviewCard(theme: store.theme, positions: store.previewPositions,
+                                 family: .medium)
                 .frame(maxWidth: .infinity)
 
             TextField(defaultName, text: $name)

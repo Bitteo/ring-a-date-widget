@@ -44,6 +44,25 @@ struct ThemeTests {
         #expect(presets.first?.theme == .classic)
     }
 
+    @Test func ringPositionsFollowTheDate() throws {
+        var components = DateComponents()
+        components.year = 2026
+        components.month = 7
+        components.day = 12
+        let date = try #require(Calendar.current.date(from: components))
+        let positions = RingPositions(date: date)
+        #expect(positions.day == 12)
+        #expect(positions.monthIndex == 6)
+        #expect(positions.weekdayIndex == Calendar.current.component(.weekday, from: date) - 1)
+    }
+
+    @Test func ringPositionsSurviveEncoding() throws {
+        let positions = RingPositions(weekdayIndex: 1, day: 27, monthIndex: 5)
+        let data = try JSONEncoder().encode(positions)
+        let decoded = try JSONDecoder().decode(RingPositions.self, from: data)
+        #expect(decoded == positions)
+    }
+
     @Test func calendarLabelsMatchTheBoard() {
         #expect(RingADateFace.dayLabels.count == 7)
         #expect(RingADateFace.monthLabels.count == 12)

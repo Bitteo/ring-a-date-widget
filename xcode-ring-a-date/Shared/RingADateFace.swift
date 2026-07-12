@@ -9,6 +9,7 @@
 
 import SwiftUI
 import WidgetKit
+import AppIntents
 
 /// Which arrangement of the calendar face to draw.
 enum RingADateLayout {
@@ -22,13 +23,30 @@ enum RingADateLayout {
 
 struct RingADateFace: View {
     let theme: CalendarTheme
-    let date: Date
-    var layout: RingADateLayout = .full
+    let positions: RingPositions
+    let layout: RingADateLayout
+    /// When true, every peg becomes a Button driving SetRingIntent, so the
+    /// rings can be moved by tapping the widget (manual mode).
+    let interactive: Bool
 
     /// In the tinted/clear Home Screen modes the system flattens every view
     /// to white through its alpha channel, so theme colors must give way to
     /// translucency: see-through pegs, full-opacity text, accentable rings.
     @Environment(\.widgetRenderingMode) private var renderingMode
+
+    init(theme: CalendarTheme,
+         positions: RingPositions,
+         layout: RingADateLayout = .full,
+         interactive: Bool = false) {
+        self.theme = theme
+        self.positions = positions
+        self.layout = layout
+        self.interactive = interactive
+    }
+
+    init(theme: CalendarTheme, date: Date, layout: RingADateLayout = .full) {
+        self.init(theme: theme, positions: RingPositions(date: date), layout: layout)
+    }
 
     static let dayLabels = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"]
     static let monthLabels = ["jan", "feb", "mar", "apr", "may", "june",
@@ -39,9 +57,9 @@ struct RingADateFace: View {
     private let rowSpacing: CGFloat = 0.30
     private let sectionGap: CGFloat = 0.95
 
-    private var weekdayIndex: Int { Calendar.current.component(.weekday, from: date) - 1 }
-    private var dayOfMonth: Int { Calendar.current.component(.day, from: date) }
-    private var monthIndex: Int { Calendar.current.component(.month, from: date) - 1 }
+    private var weekdayIndex: Int { positions.weekdayIndex }
+    private var dayOfMonth: Int { positions.day }
+    private var monthIndex: Int { positions.monthIndex }
 
     var body: some View {
         GeometryReader { geometry in
@@ -80,8 +98,10 @@ struct RingADateFace: View {
     private func dayRow(cell: CGFloat, width: CGFloat) -> some View {
         HStack(spacing: (width - 7 * cell) / 6) {
             ForEach(0..<7, id: \.self) { index in
-                gridPeg(Self.dayLabels[index], cell: cell,
-                        ring: index == weekdayIndex ? theme.dayRing : nil)
+                ringPegButton(ring: "weekday", value: index) {
+                    gridPeg(Self.dayLabels[index], cell: cell,
+                            ring: index == weekdayIndex ? theme.dayRing : nil)
+                }
             }
         }
         .frame(width: width)
@@ -95,8 +115,10 @@ struct RingADateFace: View {
                     ForEach(0..<8, id: \.self) { column in
                         let value = row * 8 + column + 1
                         if value <= 31 {
-                            gridPeg("\(value)", cell: cell,
-                                    ring: value == dayOfMonth ? theme.dateRing : nil)
+                            ringPegButton(ring: "date", value: value) {
+                                gridPeg("\(value)", cell: cell,
+                                        ring: value == dayOfMonth ? theme.dateRing : nil)
+                            }
                         } else {
                             Color.clear.frame(width: cell, height: cell)
                         }
@@ -114,8 +136,10 @@ struct RingADateFace: View {
                     ForEach(0..<8, id: \.self) { column in
                         let index = row * 8 + column
                         if index < 12 {
-                            gridPeg(Self.monthLabels[index], cell: cell,
-                                    ring: index == monthIndex ? theme.monthRing : nil)
+                            ringPegButton(ring: "month", value: index) {
+                                gridPeg(Self.monthLabels[index], cell: cell,
+                                        ring: index == monthIndex ? theme.monthRing : nil)
+                            }
                         } else {
                             Color.clear.frame(width: cell, height: cell)
                         }
@@ -135,10 +159,16 @@ struct RingADateFace: View {
         let cell = min((size.width - pegSide - gap) / gridWidthUnits,
                        size.height / gridHeightUnits)
 
+        // The single day/month pegs can't offer every position, so a tap
+        // advances them by one, wrapping around.
         return HStack(spacing: gap) {
             VStack(spacing: size.height * 0.06) {
-                framedPeg(Self.dayLabels[weekdayIndex], side: pegSide, ring: theme.dayRing)
-                framedPeg(Self.monthLabels[monthIndex], side: pegSide, ring: theme.monthRing)
+                ringPegButton(ring: "weekday", value: weekdayIndex + 1) {
+                    framedPeg(Self.dayLabels[weekdayIndex], side: pegSide, ring: theme.dayRing)
+                }
+                ringPegButton(ring: "month", value: monthIndex + 1) {
+                    framedPeg(Self.monthLabels[monthIndex], side: pegSide, ring: theme.monthRing)
+                }
             }
             dateGrid(cell: cell)
         }
@@ -150,9 +180,15 @@ struct RingADateFace: View {
     private func compactFace(in size: CGSize) -> some View {
         let side = min(size.width, size.height)
         return VStack(spacing: side * 0.05) {
-            framedPeg(Self.dayLabels[weekdayIndex], side: side * 0.26, ring: theme.dayRing)
-            framedPeg("\(dayOfMonth)", side: side * 0.38, ring: theme.dateRing)
-            framedPeg(Self.monthLabels[monthIndex], side: side * 0.26, ring: theme.monthRing)
+            ringPegButton(ring: "weekday", value: weekdayIndex + 1) {
+                framedPeg(Self.dayLabels[weekdayIndex], side: side * 0.26, ring: theme.dayRing)
+            }
+            ringPegButton(ring: "date", value: dayOfMonth + 1) {
+                framedPeg("\(dayOfMonth)", side: side * 0.38, ring: theme.dateRing)
+            }
+            ringPegButton(ring: "month", value: monthIndex + 1) {
+                framedPeg(Self.monthLabels[monthIndex], side: side * 0.26, ring: theme.monthRing)
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
@@ -174,6 +210,21 @@ struct RingADateFace: View {
     }
 
     // MARK: - Pegs
+
+    /// Wraps a peg in a Button driving SetRingIntent when the face is
+    /// interactive; otherwise returns the peg untouched.
+    @ViewBuilder
+    private func ringPegButton<Peg: View>(ring: String, value: Int,
+                                          @ViewBuilder peg: () -> Peg) -> some View {
+        if interactive {
+            Button(intent: SetRingIntent(ring: ring, value: value)) {
+                peg()
+            }
+            .buttonStyle(.plain)
+        } else {
+            peg()
+        }
+    }
 
     /// A board peg. The ring overflows the cell like the physical one does.
     private func gridPeg(_ label: String, cell: CGFloat, ring: Color?) -> some View {

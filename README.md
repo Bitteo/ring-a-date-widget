@@ -7,15 +7,20 @@ home screen widget, with a minimal companion app to customize its colors.
 
 - **Widget** (small, medium and large): draws the perpetual calendar board —
   a row of weekdays, dates 1–31 on four rows of eight columns, and months on
-  two rows — with rings marking today's weekday, date and month. The date
-  advances by itself at midnight.
+  two rows — with rings marking today's weekday, date and month.
   - *Large*: the full board, faithful to the original layout and spacing.
   - *Medium*: weekday and month pegs beside the full date grid.
   - *Small*: weekday, date and month pegs stacked, so they stay legible.
+- **Two update modes**, chosen in the app:
+  - *Automatico*: the rings jump to today's date at midnight.
+  - *Manuale*: like the physical object, the rings stay where you put them —
+    every peg on the widget is tappable (via an interactive-widget AppIntent)
+    and moves its ring there. The small pegs advance their ring by one.
 - **App**: a single screen with a live preview of the widget in all three
   sizes, six color presets (Classico, Avorio, Notte, Terracotta, Oceano,
-  Ardesia) and a custom editor for every color: background, pegs, text and
-  the three rings (day, date, month). Changes reach the widget immediately.
+  Ardesia), user-saved presets, and a custom editor for every color:
+  background, pegs, text and the three rings (day, date, month). Changes
+  reach the widget immediately.
 
 ## Project structure
 
