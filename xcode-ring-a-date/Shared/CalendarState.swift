@@ -34,6 +34,22 @@ struct RingPositions: Codable, Equatable {
         day = calendar.component(.day, from: date)
         monthIndex = calendar.component(.month, from: date) - 1
     }
+
+    /// Moves one ring ("weekday", "date" or "month") to a new position.
+    /// Out-of-range values wrap around, so "advance by one" call sites
+    /// don't have to.
+    mutating func set(ring: String, to value: Int) {
+        switch ring {
+        case "weekday":
+            weekdayIndex = ((value % 7) + 7) % 7
+        case "date":
+            day = (((value - 1) % 31) + 31) % 31 + 1
+        case "month":
+            monthIndex = ((value % 12) + 12) % 12
+        default:
+            break
+        }
+    }
 }
 
 extension ThemeStorage {

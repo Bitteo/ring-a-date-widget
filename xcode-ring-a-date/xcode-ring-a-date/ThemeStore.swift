@@ -52,6 +52,17 @@ final class ThemeStore: ObservableObject {
         objectWillChange.send()
     }
 
+    /// Moves a ring from the in-app preview, mirroring what SetRingIntent
+    /// does on the widget. Only meaningful in manual mode.
+    func moveRing(_ ring: String, to value: Int) {
+        guard mode == .manual else { return }
+        var positions = ThemeStorage.loadRingPositions()
+        positions.set(ring: ring, to: value)
+        ThemeStorage.saveRingPositions(positions)
+        objectWillChange.send()
+        WidgetCenter.shared.reloadAllTimelines()
+    }
+
     /// The preset matching the current theme, if the user hasn't customized it.
     var selectedPresetID: UUID? {
         (CalendarTheme.presets + customPresets).first { $0.theme == theme }?.id

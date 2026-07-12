@@ -29,16 +29,7 @@ struct SetRingIntent: AppIntent {
 
     func perform() async throws -> some IntentResult {
         var positions = ThemeStorage.loadRingPositions()
-        switch ring {
-        case "weekday":
-            positions.weekdayIndex = ((value % 7) + 7) % 7
-        case "date":
-            positions.day = (((value - 1) % 31) + 31) % 31 + 1
-        case "month":
-            positions.monthIndex = ((value % 12) + 12) % 12
-        default:
-            break
-        }
+        positions.set(ring: ring, to: value)
         ThemeStorage.saveRingPositions(positions)
         WidgetCenter.shared.reloadAllTimelines()
         return .result()

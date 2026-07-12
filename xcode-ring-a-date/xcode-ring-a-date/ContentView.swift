@@ -72,11 +72,16 @@ struct ContentView: View {
             .pickerStyle(.segmented)
 
             RingADatePreviewCard(theme: store.theme, positions: store.previewPositions,
-                                 family: previewFamily)
+                                 family: previewFamily,
+                                 onPegTap: store.mode == .manual
+                                     ? { ring, value in store.moveRing(ring, to: value) }
+                                     : nil)
                 .frame(maxWidth: .infinity)
                 .frame(height: 220)
                 .animation(.easeInOut(duration: 0.2), value: store.theme)
-                .animation(.easeInOut(duration: 0.25), value: previewFamily)
+                .animation(.spring(response: 0.4, dampingFraction: 0.85), value: previewFamily)
+                .animation(.spring(response: 0.5, dampingFraction: 0.72), value: store.previewPositions)
+                .sensoryFeedback(.impact(weight: .light), trigger: store.previewPositions)
         }
         .padding(.horizontal, 20)
     }
@@ -166,7 +171,7 @@ struct ContentView: View {
                 .pickerStyle(.segmented)
 
                 Text(store.mode == .manual
-                     ? "Come l'originale: gli anelli restano dove li metti. Tocca le pastiglie sul widget per spostarli, giorno dopo giorno."
+                     ? "Come l'originale: gli anelli restano dove li metti. Tocca le pastiglie sul widget, o sull'anteprima qui sopra, per farli scivolare in posizione."
                      : "Gli anelli si spostano da soli sulla data di oggi, a mezzanotte.")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
@@ -222,13 +227,20 @@ struct RingADatePreviewCard: View {
     let theme: CalendarTheme
     let positions: RingPositions
     let family: PreviewFamily
+    var onPegTap: ((String, Int) -> Void)? = nil
 
     var body: some View {
         ZStack {
+            // The card keeps its identity across family changes, so its
+            // frame morphs smoothly, while the face crossfades between the
+            // per-family arrangements.
             RoundedRectangle(cornerRadius: 24, style: .continuous)
                 .fill(theme.background)
-            RingADateFace(theme: theme, positions: positions, layout: family.layout)
+            RingADateFace(theme: theme, positions: positions, layout: family.layout,
+                          onPegTap: onPegTap)
                 .padding(padding)
+                .id(family)
+                .transition(.opacity.combined(with: .scale(scale: 0.94)))
         }
         .aspectRatio(aspectRatio, contentMode: .fit)
         .frame(maxWidth: maxWidth)

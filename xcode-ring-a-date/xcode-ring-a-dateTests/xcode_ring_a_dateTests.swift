@@ -56,6 +56,22 @@ struct ThemeTests {
         #expect(positions.weekdayIndex == Calendar.current.component(.weekday, from: date) - 1)
     }
 
+    @Test func ringSettingWrapsAround() {
+        var positions = RingPositions(weekdayIndex: 0, day: 1, monthIndex: 0)
+        positions.set(ring: "weekday", to: 7)
+        #expect(positions.weekdayIndex == 0)
+        positions.set(ring: "weekday", to: -1)
+        #expect(positions.weekdayIndex == 6)
+        positions.set(ring: "date", to: 32)
+        #expect(positions.day == 1)
+        positions.set(ring: "date", to: 27)
+        #expect(positions.day == 27)
+        positions.set(ring: "month", to: 12)
+        #expect(positions.monthIndex == 0)
+        positions.set(ring: "unknown", to: 3)
+        #expect(positions == RingPositions(weekdayIndex: 6, day: 27, monthIndex: 0))
+    }
+
     @Test func ringPositionsSurviveEncoding() throws {
         let positions = RingPositions(weekdayIndex: 1, day: 27, monthIndex: 5)
         let data = try JSONEncoder().encode(positions)
