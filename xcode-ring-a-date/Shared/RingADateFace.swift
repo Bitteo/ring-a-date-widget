@@ -8,6 +8,7 @@
 //
 
 import SwiftUI
+import WidgetKit
 
 /// Which arrangement of the calendar face to draw.
 enum RingADateLayout {
@@ -23,6 +24,11 @@ struct RingADateFace: View {
     let theme: CalendarTheme
     let date: Date
     var layout: RingADateLayout = .full
+
+    /// In the tinted/clear Home Screen modes the system flattens every view
+    /// to white through its alpha channel, so theme colors must give way to
+    /// translucency: see-through pegs, full-opacity text, accentable rings.
+    @Environment(\.widgetRenderingMode) private var renderingMode
 
     static let dayLabels = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"]
     static let monthLabels = ["jan", "feb", "mar", "apr", "may", "june",
@@ -151,23 +157,40 @@ struct RingADateFace: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
+    // MARK: - Rendering-mode aware styles
+
+    private var isFullColor: Bool { renderingMode == .fullColor }
+
+    private var pegFill: AnyShapeStyle {
+        isFullColor ? AnyShapeStyle(theme.peg) : AnyShapeStyle(Color.white.opacity(0.2))
+    }
+
+    private var textColor: Color {
+        isFullColor ? theme.text : .white
+    }
+
+    private func ringColor(_ color: Color) -> Color {
+        isFullColor ? color : .white
+    }
+
     // MARK: - Pegs
 
     /// A board peg. The ring overflows the cell like the physical one does.
     private func gridPeg(_ label: String, cell: CGFloat, ring: Color?) -> some View {
         ZStack {
             Circle()
-                .fill(theme.peg)
+                .fill(pegFill)
             Text(label)
                 .font(.system(size: cell * 0.42, weight: .semibold, design: .rounded))
                 .minimumScaleFactor(0.4)
                 .lineLimit(1)
-                .foregroundStyle(theme.text)
+                .foregroundStyle(textColor)
                 .padding(cell * 0.08)
             if let ring {
                 Circle()
-                    .strokeBorder(ring, lineWidth: cell * 0.18)
+                    .strokeBorder(ringColor(ring), lineWidth: cell * 0.18)
                     .frame(width: cell * 1.32, height: cell * 1.32)
+                    .widgetAccentable()
             }
         }
         .frame(width: cell, height: cell)
@@ -177,15 +200,16 @@ struct RingADateFace: View {
     private func framedPeg(_ label: String, side: CGFloat, ring: Color) -> some View {
         ZStack {
             Circle()
-                .strokeBorder(ring, lineWidth: side * 0.10)
+                .strokeBorder(ringColor(ring), lineWidth: side * 0.10)
+                .widgetAccentable()
             Circle()
-                .fill(theme.peg)
+                .fill(pegFill)
                 .frame(width: side * 0.72, height: side * 0.72)
             Text(label)
                 .font(.system(size: side * 0.26, weight: .semibold, design: .rounded))
                 .minimumScaleFactor(0.4)
                 .lineLimit(1)
-                .foregroundStyle(theme.text)
+                .foregroundStyle(textColor)
                 .frame(width: side * 0.58)
         }
         .frame(width: side, height: side)
