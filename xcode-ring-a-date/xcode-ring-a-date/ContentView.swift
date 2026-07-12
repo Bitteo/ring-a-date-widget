@@ -10,25 +10,43 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject private var store = ThemeStore()
-    @State private var previewFamily: PreviewFamily = .large
+    @State private var previewFamily: PreviewFamily = .medium
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 28) {
-                previewSection
-                presetSection
-                customSection
-                footer
+        VStack(spacing: 16) {
+            // The preview stays pinned above the scrolling controls, so every
+            // color change gives immediate feedback — even while the color
+            // picker sheet is open at the bottom of the screen.
+            previewSection
+            ScrollView {
+                VStack(alignment: .leading, spacing: 24) {
+                    presetSection
+                    colorGroup(title: "Calendario", rows: [
+                        ("Sfondo", \.backgroundHex),
+                        ("Pastiglie", \.pegHex),
+                        ("Testo", \.textHex),
+                    ])
+                    .padding(.horizontal, 20)
+                    colorGroup(title: "Anelli", rows: [
+                        ("Giorno", \.dayRingHex),
+                        ("Data", \.dateRingHex),
+                        ("Mese", \.monthRingHex),
+                    ])
+                    .padding(.horizontal, 20)
+                    footer
+                        .padding(.horizontal, 20)
+                }
+                .padding(.bottom, 24)
             }
-            .padding(20)
         }
+        .padding(.top, 12)
         .background(Color(uiColor: .systemGroupedBackground))
     }
 
     // MARK: - Preview
 
     private var previewSection: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 14) {
             Picker("Formato", selection: $previewFamily) {
                 ForEach(PreviewFamily.allCases) { family in
                     Text(family.label).tag(family)
@@ -38,8 +56,11 @@ struct ContentView: View {
 
             RingADatePreviewCard(theme: store.theme, family: previewFamily)
                 .frame(maxWidth: .infinity)
+                .frame(height: 220)
                 .animation(.easeInOut(duration: 0.2), value: store.theme)
+                .animation(.easeInOut(duration: 0.25), value: previewFamily)
         }
+        .padding(.horizontal, 20)
     }
 
     // MARK: - Presets
@@ -47,35 +68,35 @@ struct ContentView: View {
     private var presetSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             sectionTitle("Preset")
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 3),
-                      spacing: 12) {
-                ForEach(CalendarTheme.presets) { preset in
-                    PresetSwatch(preset: preset,
-                                 isSelected: store.selectedPresetID == preset.id) {
-                        store.theme = preset.theme
+                .padding(.horizontal, 20)
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 12) {
+                    ForEach(CalendarTheme.presets) { preset in
+                        PresetSwatch(preset: preset,
+                                     isSelected: store.selectedPresetID == preset.id) {
+                            store.theme = preset.theme
+                        }
+                        .frame(width: 96)
                     }
                 }
+                .padding(.horizontal, 20)
             }
         }
     }
 
     // MARK: - Custom colors
 
-    private var customSection: some View {
+    private func colorGroup(title: String,
+                            rows: [(label: String, keyPath: WritableKeyPath<CalendarTheme, String>)]) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            sectionTitle("La tua combinazione")
+            sectionTitle(title)
             VStack(spacing: 0) {
-                colorRow("Sfondo", keyPath: \.backgroundHex)
-                Divider().padding(.leading, 16)
-                colorRow("Pastiglie", keyPath: \.pegHex)
-                Divider().padding(.leading, 16)
-                colorRow("Testo", keyPath: \.textHex)
-                Divider().padding(.leading, 16)
-                colorRow("Anello giorno", keyPath: \.dayRingHex)
-                Divider().padding(.leading, 16)
-                colorRow("Anello data", keyPath: \.dateRingHex)
-                Divider().padding(.leading, 16)
-                colorRow("Anello mese", keyPath: \.monthRingHex)
+                ForEach(Array(rows.enumerated()), id: \.offset) { index, row in
+                    if index > 0 {
+                        Divider().padding(.leading, 16)
+                    }
+                    colorRow(row.label, keyPath: row.keyPath)
+                }
             }
             .background(Color(uiColor: .secondarySystemGroupedBackground))
             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
