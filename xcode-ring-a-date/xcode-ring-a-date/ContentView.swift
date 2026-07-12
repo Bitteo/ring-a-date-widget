@@ -94,13 +94,6 @@ struct ContentView: View {
                 .padding(.horizontal, 20)
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 12) {
-                    ForEach(CalendarTheme.presets) { preset in
-                        PresetSwatch(preset: preset,
-                                     isSelected: store.selectedPresetID == preset.id) {
-                            store.theme = preset.theme
-                        }
-                        .frame(width: 96)
-                    }
                     ForEach(store.customPresets) { preset in
                         PresetSwatch(preset: preset,
                                      isSelected: store.selectedPresetID == preset.id) {
@@ -112,6 +105,13 @@ struct ContentView: View {
                                 store.deletePreset(preset)
                             }
                         }
+                    }
+                    ForEach(CalendarTheme.presets) { preset in
+                        PresetSwatch(preset: preset,
+                                     isSelected: store.selectedPresetID == preset.id) {
+                            store.theme = preset.theme
+                        }
+                        .frame(width: 96)
                     }
                 }
                 .padding(.horizontal, 20)

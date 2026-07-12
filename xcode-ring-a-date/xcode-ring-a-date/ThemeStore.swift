@@ -65,7 +65,7 @@ final class ThemeStore: ObservableObject {
 
     /// The preset matching the current theme, if the user hasn't customized it.
     var selectedPresetID: UUID? {
-        (CalendarTheme.presets + customPresets).first { $0.theme == theme }?.id
+        (customPresets + CalendarTheme.presets).first { $0.theme == theme }?.id
     }
 
     /// Saves the current theme as a user preset. Falls back to the suggested
