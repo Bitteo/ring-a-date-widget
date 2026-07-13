@@ -18,60 +18,33 @@ struct MarkerTray: View {
     let onCreateMarker: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                Text("Marcatori")
-                    .font(.headline)
-                    .foregroundStyle(.primary)
-                Spacer()
-                if store.markerRings.count < ThemeStorage.maxMarkerRings {
-                    Button(action: onCreateMarker) {
-                        Image(systemName: "plus")
-                            .font(.body.weight(.semibold))
-                            .foregroundStyle(.secondary)
-                            .frame(width: 32, height: 32)
-                            .background(Color(uiColor: .secondarySystemGroupedBackground))
-                            .clipShape(Circle())
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel("Nuovo marcatore")
-                }
-            }
-
-            Text("Trascina un anello sul calendario, oppure toccalo e poi scegli la data.")
-                .font(.footnote)
-                .foregroundStyle(.secondary)
-
-            if store.markerRings.isEmpty {
-                Text("Nessun marcatore")
-                    .font(.subheadline)
-                    .foregroundStyle(.tertiary)
-            } else {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 14) {
-                        ForEach(store.markerRings) { marker in
-                            DraggableMarkerRing(
-                                marker: marker,
-                                theme: theme,
-                                style: .tray,
-                                isActive: store.activeMarkerID == marker.id,
-                                isDragging: draggingMarkerID == marker.id,
-                                onTap: { store.activateMarker(id: marker.id) },
-                                onDragChanged: { onDragChanged(marker.id, $0) },
-                                onDragEnded: { onDragEnded(marker.id, $0) }
-                            )
-                            .contextMenu {
-                                Button("Elimina", systemImage: "trash", role: .destructive) {
-                                    store.deleteMarker(marker)
-                                }
-                            }
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(alignment: .center, spacing: 14) {
+                ForEach(store.markerRings) { marker in
+                    DraggableMarkerRing(
+                        marker: marker,
+                        theme: theme,
+                        style: .tray,
+                        isActive: store.activeMarkerID == marker.id,
+                        isDragging: draggingMarkerID == marker.id,
+                        onTap: { store.activateMarker(id: marker.id) },
+                        onDragChanged: { onDragChanged(marker.id, $0) },
+                        onDragEnded: { onDragEnded(marker.id, $0) }
+                    )
+                    .contextMenu {
+                        Button("Elimina", systemImage: "trash", role: .destructive) {
+                            store.deleteMarker(marker)
                         }
                     }
-                    .padding(.vertical, 4)
+                }
+
+                if store.markerRings.count < ThemeStorage.maxMarkerRings {
+                    AddMarkerChip(action: onCreateMarker)
                 }
             }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 4)
         }
-        .padding(.horizontal, 20)
     }
 }
 
@@ -167,6 +140,44 @@ struct DraggableMarkerRing: View {
         )
         .accessibilityLabel(marker.day.map { "Marcatore giorno \($0)" } ?? "Marcatore da posizionare")
         .accessibilityAddTraits(isActive ? .isSelected : [])
+    }
+}
+
+// MARK: - Add chip
+
+/// A chip the size of a tray marker that creates a new marker when tapped.
+/// Drawn as an empty dotted ring with a plus, so it reads as the slot for
+/// the next marker sitting to the right of the existing ones. It mirrors
+/// the marker chip's ring + caption layout so the two line up in the row.
+struct AddMarkerChip: View {
+    let action: () -> Void
+
+    private let style = DraggableMarkerRing.Style.tray
+
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 8) {
+                Circle()
+                    .strokeBorder(
+                        Color.secondary.opacity(0.5),
+                        style: StrokeStyle(lineWidth: 2, dash: [5, 5])
+                    )
+                    .frame(width: style.ringSize, height: style.ringSize)
+                    .overlay {
+                        Image(systemName: "plus")
+                            .font(.title2.weight(.semibold))
+                            .foregroundStyle(.secondary)
+                    }
+                    .frame(width: style.selectionSize, height: style.selectionSize)
+
+                Text("Aggiungi")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .frame(width: 88)
+            }
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Nuovo marcatore")
     }
 }
 
