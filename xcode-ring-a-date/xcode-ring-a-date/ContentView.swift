@@ -116,12 +116,6 @@ struct ContentView: View {
             }
             .pickerStyle(.segmented)
 
-            PlacementModeBanner(
-                isVisible: isPlacementActive,
-                compactPreview: !canPlaceOnPreview,
-                onCancel: cancelPlacement
-            )
-
             RingADatePreviewCard(
                 theme: store.theme,
                 positions: store.previewPositions,
@@ -161,12 +155,6 @@ struct ContentView: View {
     private func createMarker() {
         guard store.createMarker() != nil else { return }
         markerCreationFeedback += 1
-    }
-
-    private func cancelPlacement() {
-        dragMarkerID = nil
-        dragLocation = nil
-        store.deactivatePlacement()
     }
 
     private func placeActiveMarker(on day: Int) {

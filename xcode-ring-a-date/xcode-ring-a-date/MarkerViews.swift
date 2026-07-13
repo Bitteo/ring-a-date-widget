@@ -2,7 +2,7 @@
 //  MarkerViews.swift
 //  xcode-ring-a-date
 //
-//  Tray, draggable rings, placement banner and marker drawer.
+//  Tray, draggable rings and marker drawer.
 //
 
 import SwiftUI
@@ -109,6 +109,9 @@ struct DraggableMarkerRing: View {
             case .drawer: 28
             }
         }
+
+        /// Diameter reserved for the active-marker accent ring, so selecting a marker never resizes its container.
+        var selectionSize: CGFloat { ringSize + 8 }
     }
 
     let marker: MarkerRing
@@ -140,10 +143,10 @@ struct DraggableMarkerRing: View {
                 if isActive {
                     Circle()
                         .strokeBorder(Color.accentColor, lineWidth: 2)
-                        .frame(width: style.ringSize + 8, height: style.ringSize + 8)
+                        .frame(width: style.selectionSize, height: style.selectionSize)
                 }
             }
-            .frame(height: style.ringSize)
+            .frame(width: style.selectionSize, height: style.selectionSize)
             .scaleEffect(isActive ? 1.05 : 1)
             .opacity(isDragging ? 0.35 : 1)
             .animation(.spring(response: 0.3, dampingFraction: 0.72), value: isActive)
@@ -164,36 +167,6 @@ struct DraggableMarkerRing: View {
         )
         .accessibilityLabel(marker.day.map { "Marcatore giorno \($0)" } ?? "Marcatore da posizionare")
         .accessibilityAddTraits(isActive ? .isSelected : [])
-    }
-}
-
-// MARK: - Placement banner
-
-struct PlacementModeBanner: View {
-    let isVisible: Bool
-    let compactPreview: Bool
-    let onCancel: () -> Void
-
-    var body: some View {
-        if isVisible {
-            HStack(spacing: 12) {
-                Image(systemName: "hand.tap.fill")
-                    .foregroundStyle(.secondary)
-                Text(compactPreview
-                     ? "Passa a Medio o Grande per posizionare sulla griglia"
-                     : "Tocca una data per posizionare")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                Spacer()
-                Button("Annulla", action: onCancel)
-                    .font(.subheadline.weight(.semibold))
-            }
-            .padding(.horizontal, 14)
-            .padding(.vertical, 10)
-            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-            .padding(.horizontal, 20)
-            .transition(.move(edge: .top).combined(with: .opacity))
-        }
     }
 }
 
