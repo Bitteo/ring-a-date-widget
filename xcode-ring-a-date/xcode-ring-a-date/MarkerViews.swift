@@ -18,33 +18,34 @@ struct MarkerTray: View {
     let onCreateMarker: () -> Void
 
     var body: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(alignment: .center, spacing: 14) {
-                ForEach(store.markerRings) { marker in
-                    DraggableMarkerRing(
-                        marker: marker,
-                        theme: theme,
-                        style: .tray,
-                        isActive: store.activeMarkerID == marker.id,
-                        isDragging: draggingMarkerID == marker.id,
-                        onTap: { store.activateMarker(id: marker.id) },
-                        onDragChanged: { onDragChanged(marker.id, $0) },
-                        onDragEnded: { onDragEnded(marker.id, $0) }
-                    )
-                    .contextMenu {
-                        Button("Elimina", systemImage: "trash", role: .destructive) {
-                            store.deleteMarker(marker)
-                        }
+        // At most two markers plus the add chip, so the row always fits:
+        // center it instead of scrolling.
+        HStack(alignment: .center, spacing: 14) {
+            ForEach(store.markerRings) { marker in
+                DraggableMarkerRing(
+                    marker: marker,
+                    theme: theme,
+                    style: .tray,
+                    isActive: store.activeMarkerID == marker.id,
+                    isDragging: draggingMarkerID == marker.id,
+                    onTap: { store.activateMarker(id: marker.id) },
+                    onDragChanged: { onDragChanged(marker.id, $0) },
+                    onDragEnded: { onDragEnded(marker.id, $0) }
+                )
+                .contextMenu {
+                    Button("Elimina", systemImage: "trash", role: .destructive) {
+                        store.deleteMarker(marker)
                     }
                 }
-
-                if store.markerRings.count < ThemeStorage.maxMarkerRings {
-                    AddMarkerChip(action: onCreateMarker)
-                }
             }
-            .padding(.horizontal, 20)
-            .padding(.vertical, 4)
+
+            if store.markerRings.count < ThemeStorage.maxMarkerRings {
+                AddMarkerChip(action: onCreateMarker)
+            }
         }
+        .frame(maxWidth: .infinity, alignment: .center)
+        .padding(.horizontal, 20)
+        .padding(.vertical, 4)
     }
 }
 
