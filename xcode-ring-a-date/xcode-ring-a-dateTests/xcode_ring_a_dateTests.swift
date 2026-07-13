@@ -79,6 +79,69 @@ struct ThemeTests {
         #expect(decoded == positions)
     }
 
+    @Test func themeWithoutFontStyleDefaultsToNeutral() throws {
+        let legacyJSON = """
+        {"backgroundHex":"#2F6B52","pegHex":"#265944","textHex":"#F2EFE6","dayRingHex":"#E4B33D","dateRingHex":"#C24D3F","monthRingHex":"#E7E2D6"}
+        """.data(using: .utf8)!
+        let decoded = try JSONDecoder().decode(CalendarTheme.self, from: legacyJSON)
+        #expect(decoded.fontStyle == .neutral)
+    }
+
+    @Test func retiredFontStylesMigrateForward() {
+        #expect(CalendarFontStyle.migrated(from: "rounded") == .neutral)
+        #expect(CalendarFontStyle.migrated(from: "serif") == .classic)
+    }
+
+    @Test func fontStyleSurvivesEncoding() throws {
+        var theme = CalendarTheme.classic
+        theme.fontStyle = .mono
+        let data = try JSONEncoder().encode(theme)
+        let decoded = try JSONDecoder().decode(CalendarTheme.self, from: data)
+        #expect(decoded.fontStyle == .mono)
+    }
+
+    @Test func markerRingsSurviveEncoding() throws {
+        let markers = [
+            MarkerRing(day: 12, colorHex: "#9B5DE5"),
+            MarkerRing(day: 30, colorHex: "#F15BB5"),
+        ]
+        let data = try JSONEncoder().encode(markers)
+        let decoded = try JSONDecoder().decode([MarkerRing].self, from: data)
+        #expect(decoded == markers)
+    }
+
+    @Test func unplacedMarkerRingsSurviveEncoding() throws {
+        let markers = [
+            MarkerRing(day: nil, colorHex: "#9B5DE5"),
+            MarkerRing(day: 15, colorHex: "#F15BB5"),
+        ]
+        let data = try JSONEncoder().encode(markers)
+        let decoded = try JSONDecoder().decode([MarkerRing].self, from: data)
+        #expect(decoded == markers)
+    }
+
+    @Test func legacyPlacedMarkerJSONStillDecodes() throws {
+        let legacyJSON = """
+        [{"id":"A1B2C3D4-E5F6-7890-ABCD-EF1234567890","day":12,"colorHex":"#9B5DE5"}]
+        """.data(using: .utf8)!
+        let decoded = try JSONDecoder().decode([MarkerRing].self, from: legacyJSON)
+        #expect(decoded.count == 1)
+        #expect(decoded[0].day == 12)
+        #expect(decoded[0].colorHex == "#9B5DE5")
+    }
+
+    @MainActor
+    @Test func placeMarkerSetsDayAndClearsActiveSelection() {
+        let store = ThemeStore()
+        store.markerRings = []
+        let marker = MarkerRing(day: nil, colorHex: "#9B5DE5")
+        store.upsertMarker(marker)
+        store.activateMarker(id: marker.id)
+        store.placeMarker(id: marker.id, on: 21)
+        #expect(store.markerRings.first?.day == 21)
+        #expect(store.activeMarkerID == nil)
+    }
+
     @Test func calendarLabelsMatchTheBoard() {
         #expect(RingADateFace.dayLabels.count == 7)
         #expect(RingADateFace.monthLabels.count == 12)

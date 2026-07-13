@@ -21,6 +21,21 @@ final class ThemeStore: ObservableObject {
 
     @Published private(set) var customPresets: [ThemePreset]
 
+    @Published var markerRings: [MarkerRing] {
+        didSet {
+            guard markerRings != oldValue else { return }
+            ThemeStorage.saveMarkerRings(markerRings)
+            WidgetCenter.shared.reloadAllTimelines()
+        }
+    }
+
+    /// The marker currently selected for tap-to-place or drag placement.
+    @Published var activeMarkerID: UUID?
+
+    private var lastMarkerColorHex: String?
+
+    var placementMode: Bool { activeMarkerID != nil }
+
     /// Whether the widget rings follow the date or the user's taps.
     @Published var mode: CalendarMode {
         didSet {
@@ -37,6 +52,7 @@ final class ThemeStore: ObservableObject {
     init() {
         theme = ThemeStorage.load()
         customPresets = ThemeStorage.loadCustomPresets()
+        markerRings = ThemeStorage.loadMarkerRings()
         mode = ThemeStorage.loadMode()
     }
 
@@ -63,12 +79,12 @@ final class ThemeStore: ObservableObject {
         WidgetCenter.shared.reloadAllTimelines()
     }
 
-    /// The preset matching the current theme, if the user hasn't customized it.
+    /// The palette matching the current theme, if the user hasn't customized it.
     var selectedPresetID: UUID? {
         (customPresets + CalendarTheme.presets).first { $0.theme == theme }?.id
     }
 
-    /// Saves the current theme as a user preset. Falls back to the suggested
+    /// Saves the current theme as a user palette. Falls back to the suggested
     /// "Palette N" name when the given name is empty.
     func saveCurrentAsPreset(named name: String) {
         let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -81,6 +97,56 @@ final class ThemeStore: ObservableObject {
     func deletePreset(_ preset: ThemePreset) {
         customPresets.removeAll { $0.id == preset.id }
         ThemeStorage.saveCustomPresets(customPresets)
+    }
+
+    func upsertMarker(_ marker: MarkerRing) {
+        var markers = markerRings
+        if let index = markers.firstIndex(where: { $0.id == marker.id }) {
+            markers[index] = marker
+        } else if markers.count < ThemeStorage.maxMarkerRings {
+            markers.append(marker)
+        }
+        markerRings = markers
+        lastMarkerColorHex = marker.colorHex
+    }
+
+    @discardableResult
+    func createMarker() -> MarkerRing? {
+        guard markerRings.count < ThemeStorage.maxMarkerRings else { return nil }
+        let marker = MarkerRing(day: nil, colorHex: lastMarkerColorHex ?? MarkerRing.defaultColorHex)
+        upsertMarker(marker)
+        activeMarkerID = marker.id
+        return marker
+    }
+
+    func placeMarker(id: UUID, on day: Int) {
+        guard var marker = markerRings.first(where: { $0.id == id }) else { return }
+        marker.day = min(max(day, 1), 31)
+        upsertMarker(marker)
+        if activeMarkerID == id {
+            activeMarkerID = nil
+        }
+    }
+
+    func activateMarker(id: UUID) {
+        activeMarkerID = activeMarkerID == id ? nil : id
+    }
+
+    func deactivatePlacement() {
+        activeMarkerID = nil
+    }
+
+    func updateMarkerColor(id: UUID, colorHex: String) {
+        guard var marker = markerRings.first(where: { $0.id == id }) else { return }
+        marker.colorHex = colorHex
+        upsertMarker(marker)
+    }
+
+    func deleteMarker(_ marker: MarkerRing) {
+        if activeMarkerID == marker.id {
+            activeMarkerID = nil
+        }
+        markerRings.removeAll { $0.id == marker.id }
     }
 
     /// Binding for a single theme color, bridged to `Color` for ColorPicker.

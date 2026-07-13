@@ -24,6 +24,7 @@ enum RingADateLayout {
 struct RingADateFace: View {
     let theme: CalendarTheme
     let positions: RingPositions
+    let markerRings: [MarkerRing]
     let layout: RingADateLayout
     /// When true, every peg becomes a Button driving SetRingIntent, so the
     /// rings can be moved by tapping the widget (manual mode).
@@ -31,6 +32,16 @@ struct RingADateFace: View {
     /// In-app counterpart of `interactive`: when set, tapping a peg calls
     /// this with the ring name and target position instead of an AppIntent.
     let onPegTap: ((String, Int) -> Void)?
+    /// When true, date pegs accept placement taps instead of ring moves.
+    let isPlacementMode: Bool
+    /// Highlights date pegs as drop targets.
+    let placementHighlight: Bool
+    /// Called when the user taps a date peg to place the active marker.
+    let onDatePlace: ((Int) -> Void)?
+    /// Called on long press over a date that already has a marker.
+    let onDateLongPress: ((Int) -> Void)?
+    /// Reports date peg frames in global coordinates for drag-and-drop.
+    let onDateFramesChange: (([Int: CGRect]) -> Void)?
 
     /// In the tinted/clear Home Screen modes the system flattens every view
     /// to white through its alpha channel, so theme colors must give way to
@@ -43,14 +54,26 @@ struct RingADateFace: View {
 
     init(theme: CalendarTheme,
          positions: RingPositions,
+         markerRings: [MarkerRing] = [],
          layout: RingADateLayout = .full,
          interactive: Bool = false,
-         onPegTap: ((String, Int) -> Void)? = nil) {
+         onPegTap: ((String, Int) -> Void)? = nil,
+         isPlacementMode: Bool = false,
+         placementHighlight: Bool = false,
+         onDatePlace: ((Int) -> Void)? = nil,
+         onDateLongPress: ((Int) -> Void)? = nil,
+         onDateFramesChange: (([Int: CGRect]) -> Void)? = nil) {
         self.theme = theme
         self.positions = positions
+        self.markerRings = markerRings
         self.layout = layout
         self.interactive = interactive
         self.onPegTap = onPegTap
+        self.isPlacementMode = isPlacementMode
+        self.placementHighlight = placementHighlight
+        self.onDatePlace = onDatePlace
+        self.onDateLongPress = onDateLongPress
+        self.onDateFramesChange = onDateFramesChange
     }
 
     init(theme: CalendarTheme, date: Date, layout: RingADateLayout = .full) {
@@ -105,6 +128,9 @@ struct RingADateFace: View {
             slidingRing(theme.dateRing, cell: cell, matchID: "date-\(dayOfMonth)")
             slidingRing(theme.monthRing, cell: cell, matchID: "month-\(monthIndex)")
         }
+        .onPreferenceChange(DateCellFrameKey.self) { frames in
+            onDateFramesChange?(frames)
+        }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
@@ -128,9 +154,7 @@ struct RingADateFace: View {
                     ForEach(0..<8, id: \.self) { column in
                         let value = row * 8 + column + 1
                         if value <= 31 {
-                            ringPegButton(ring: "date", value: value) {
-                                gridPeg("\(value)", cell: cell, matchID: "date-\(value)")
-                            }
+                            datePegButton(value: value, cell: cell, matchID: "date-\(value)")
                         } else {
                             Color.clear.frame(width: cell, height: cell)
                         }
@@ -186,6 +210,9 @@ struct RingADateFace: View {
             }
             slidingRing(theme.dateRing, cell: cell, matchID: "date-\(dayOfMonth)")
         }
+        .onPreferenceChange(DateCellFrameKey.self) { frames in
+            onDateFramesChange?(frames)
+        }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
@@ -198,7 +225,7 @@ struct RingADateFace: View {
                 framedPeg(Self.dayLabels[weekdayIndex], side: side * 0.26, ring: theme.dayRing)
             }
             ringPegButton(ring: "date", value: dayOfMonth + 1) {
-                framedPeg("\(dayOfMonth)", side: side * 0.38, ring: theme.dateRing)
+                framedPeg("\(dayOfMonth)", side: side * 0.38, ring: theme.dateRing, day: dayOfMonth)
             }
             ringPegButton(ring: "month", value: monthIndex + 1) {
                 framedPeg(Self.monthLabels[monthIndex], side: side * 0.26, ring: theme.monthRing)
@@ -231,7 +258,9 @@ struct RingADateFace: View {
     @ViewBuilder
     private func ringPegButton<Peg: View>(ring: String, value: Int,
                                           @ViewBuilder peg: () -> Peg) -> some View {
-        if interactive {
+        if isPlacementMode {
+            peg()
+        } else if interactive {
             Button(intent: SetRingIntent(ring: ring, value: value)) {
                 peg()
             }
@@ -248,17 +277,99 @@ struct RingADateFace: View {
         }
     }
 
+    @ViewBuilder
+    private func datePegButton(value: Int, cell: CGFloat, matchID: String) -> some View {
+        let peg = gridPeg("\(value)", cell: cell, matchID: matchID, day: value)
+            .overlay {
+                if placementHighlight {
+                    Circle()
+                        .strokeBorder(Color.accentColor.opacity(0.35), lineWidth: cell * 0.06)
+                        .frame(width: cell * 1.08, height: cell * 1.08)
+                }
+            }
+            .background(dateFrameReader(for: value))
+
+        if isPlacementMode, let onDatePlace {
+            Button {
+                onDatePlace(value)
+            } label: {
+                peg
+            }
+            .buttonStyle(.plain)
+        } else if interactive {
+            Button(intent: SetRingIntent(ring: "date", value: value)) {
+                peg
+            }
+            .buttonStyle(.plain)
+        } else if let onPegTap, !isPlacementMode {
+            datePegWithLongPress(peg, day: value) {
+                onPegTap("date", value)
+            }
+        } else {
+            datePegWithOptionalLongPress(peg, day: value)
+        }
+    }
+
+    @ViewBuilder
+    private func datePegWithLongPress<Peg: View>(_ peg: Peg, day: Int, action: @escaping () -> Void) -> some View {
+        if markers(on: day).isEmpty {
+            Button(action: action) { peg }.buttonStyle(.plain)
+        } else {
+            Button(action: action) { peg }
+                .buttonStyle(.plain)
+                .simultaneousGesture(
+                    LongPressGesture(minimumDuration: 0.4)
+                        .onEnded { _ in onDateLongPress?(day) }
+                )
+        }
+    }
+
+    @ViewBuilder
+    private func datePegWithOptionalLongPress<Peg: View>(_ peg: Peg, day: Int) -> some View {
+        if markers(on: day).isEmpty {
+            peg
+        } else {
+            peg.simultaneousGesture(
+                LongPressGesture(minimumDuration: 0.4)
+                    .onEnded { _ in onDateLongPress?(day) }
+            )
+        }
+    }
+
+    private func dateFrameReader(for day: Int) -> some View {
+        GeometryReader { geometry in
+            Color.clear.preference(
+                key: DateCellFrameKey.self,
+                value: [day: geometry.frame(in: .global)]
+            )
+        }
+    }
+
+    private func markers(on day: Int) -> [MarkerRing] {
+        markerRings.filter { $0.day == day }
+    }
+
     /// A board peg, registered as the geometry source its ring slides to.
-    private func gridPeg(_ label: String, cell: CGFloat, matchID: String) -> some View {
+    private func gridPeg(_ label: String, cell: CGFloat, matchID: String, day: Int? = nil) -> some View {
         ZStack {
             Circle()
                 .fill(pegFill)
             Text(label)
-                .font(.system(size: cell * 0.42, weight: .semibold, design: .rounded))
+                .font(theme.fontStyle.pegFont(size: cell * 0.42))
                 .minimumScaleFactor(0.4)
                 .lineLimit(1)
                 .foregroundStyle(textColor)
                 .padding(cell * 0.08)
+
+            if let day {
+                ForEach(Array(markers(on: day).enumerated()), id: \.element.id) { index, marker in
+                    let scale = 1.40 + CGFloat(index) * 0.10
+                    Circle()
+                        .strokeBorder(ringColor(Color(hex: marker.colorHex)), lineWidth: cell * 0.12)
+                        .frame(width: cell * scale, height: cell * scale)
+                        .allowsHitTesting(false)
+                }
+            }
         }
         .frame(width: cell, height: cell)
         .matchedGeometryEffect(id: matchID, in: ringNamespace)
@@ -278,8 +389,18 @@ struct RingADateFace: View {
     }
 
     /// A peg with its ring contained inside the frame, for the compact faces.
-    private func framedPeg(_ label: String, side: CGFloat, ring: Color) -> some View {
+    private func framedPeg(_ label: String, side: CGFloat, ring: Color, day: Int? = nil) -> some View {
         ZStack {
+            if let day {
+                ForEach(Array(markers(on: day).enumerated()), id: \.element.id) { index, marker in
+                    let scale = 1.02 + CGFloat(index) * 0.08
+                    Circle()
+                        .strokeBorder(ringColor(Color(hex: marker.colorHex)), lineWidth: side * 0.07)
+                        .frame(width: side * scale, height: side * scale)
+                        .allowsHitTesting(false)
+                }
+            }
+
             Circle()
                 .strokeBorder(ringColor(ring), lineWidth: side * 0.10)
                 .widgetAccentable()
@@ -287,13 +408,23 @@ struct RingADateFace: View {
                 .fill(pegFill)
                 .frame(width: side * 0.72, height: side * 0.72)
             Text(label)
-                .font(.system(size: side * 0.26, weight: .semibold, design: .rounded))
+                .font(theme.fontStyle.pegFont(size: side * 0.26))
                 .minimumScaleFactor(0.4)
                 .lineLimit(1)
                 .foregroundStyle(textColor)
                 .frame(width: side * 0.58)
         }
         .frame(width: side, height: side)
+    }
+}
+
+// MARK: - Date cell geometry for marker drag-and-drop
+
+struct DateCellFrameKey: PreferenceKey {
+    static var defaultValue: [Int: CGRect] = [:]
+
+    static func reduce(value: inout [Int: CGRect], nextValue: () -> [Int: CGRect]) {
+        value.merge(nextValue(), uniquingKeysWith: { $1 })
     }
 }
 

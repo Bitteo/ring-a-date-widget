@@ -1,0 +1,308 @@
+//
+//  MarkerViews.swift
+//  xcode-ring-a-date
+//
+//  Tray, draggable rings, placement banner and marker drawer.
+//
+
+import SwiftUI
+
+// MARK: - Tray
+
+struct MarkerTray: View {
+    @ObservedObject var store: ThemeStore
+    let theme: CalendarTheme
+    let draggingMarkerID: UUID?
+    let onDragChanged: (UUID, DragGesture.Value) -> Void
+    let onDragEnded: (UUID, DragGesture.Value) -> Void
+    let onCreateMarker: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Text("Marcatori")
+                    .font(.headline)
+                    .foregroundStyle(.primary)
+                Spacer()
+                if store.markerRings.count < ThemeStorage.maxMarkerRings {
+                    Button(action: onCreateMarker) {
+                        Image(systemName: "plus")
+                            .font(.body.weight(.semibold))
+                            .foregroundStyle(.secondary)
+                            .frame(width: 32, height: 32)
+                            .background(Color(uiColor: .secondarySystemGroupedBackground))
+                            .clipShape(Circle())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Nuovo marcatore")
+                }
+            }
+
+            Text("Trascina un anello sul calendario, oppure toccalo e poi scegli la data.")
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+
+            if store.markerRings.isEmpty {
+                Text("Nessun marcatore")
+                    .font(.subheadline)
+                    .foregroundStyle(.tertiary)
+            } else {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 14) {
+                        ForEach(store.markerRings) { marker in
+                            DraggableMarkerRing(
+                                marker: marker,
+                                theme: theme,
+                                style: .tray,
+                                isActive: store.activeMarkerID == marker.id,
+                                isDragging: draggingMarkerID == marker.id,
+                                onTap: { store.activateMarker(id: marker.id) },
+                                onDragChanged: { onDragChanged(marker.id, $0) },
+                                onDragEnded: { onDragEnded(marker.id, $0) }
+                            )
+                            .contextMenu {
+                                Button("Elimina", systemImage: "trash", role: .destructive) {
+                                    store.deleteMarker(marker)
+                                }
+                            }
+                        }
+                    }
+                    .padding(.vertical, 4)
+                }
+            }
+        }
+        .padding(.horizontal, 20)
+    }
+}
+
+// MARK: - Draggable ring
+
+struct DraggableMarkerRing: View {
+    enum Style {
+        case tray
+        case drawer
+
+        var pegSize: CGFloat {
+            switch self {
+            case .tray: 56
+            case .drawer: 72
+            }
+        }
+
+        var ringSize: CGFloat {
+            switch self {
+            case .tray: 68
+            case .drawer: 92
+            }
+        }
+
+        var ringWidth: CGFloat {
+            switch self {
+            case .tray: 4
+            case .drawer: 5
+            }
+        }
+
+        var fontSize: CGFloat {
+            switch self {
+            case .tray: 20
+            case .drawer: 28
+            }
+        }
+    }
+
+    let marker: MarkerRing
+    let theme: CalendarTheme
+    let style: Style
+    let isActive: Bool
+    var isDragging: Bool = false
+    let onTap: () -> Void
+    let onDragChanged: (DragGesture.Value) -> Void
+    let onDragEnded: (DragGesture.Value) -> Void
+
+    var body: some View {
+        VStack(spacing: 8) {
+            ZStack {
+                Circle()
+                    .fill(theme.peg)
+                    .frame(width: style.pegSize, height: style.pegSize)
+
+                if let day = marker.day {
+                    Text("\(day)")
+                        .font(theme.fontStyle.pegFont(size: style.fontSize))
+                        .foregroundStyle(theme.text)
+                }
+
+                Circle()
+                    .strokeBorder(Color(hex: marker.colorHex), lineWidth: style.ringWidth)
+                    .frame(width: style.ringSize, height: style.ringSize)
+
+                if isActive {
+                    Circle()
+                        .strokeBorder(Color.accentColor, lineWidth: 2)
+                        .frame(width: style.ringSize + 8, height: style.ringSize + 8)
+                }
+            }
+            .frame(height: style.ringSize)
+            .scaleEffect(isActive ? 1.05 : 1)
+            .opacity(isDragging ? 0.35 : 1)
+            .animation(.spring(response: 0.3, dampingFraction: 0.72), value: isActive)
+
+            if style == .tray {
+                Text(marker.day.map { "Giorno \($0)" } ?? "Da posizionare")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .frame(width: 88)
+            }
+        }
+        .contentShape(Rectangle())
+        .onTapGesture(perform: onTap)
+        .gesture(
+            DragGesture(minimumDistance: 8, coordinateSpace: .global)
+                .onChanged(onDragChanged)
+                .onEnded(onDragEnded)
+        )
+        .accessibilityLabel(marker.day.map { "Marcatore giorno \($0)" } ?? "Marcatore da posizionare")
+        .accessibilityAddTraits(isActive ? .isSelected : [])
+    }
+}
+
+// MARK: - Placement banner
+
+struct PlacementModeBanner: View {
+    let isVisible: Bool
+    let compactPreview: Bool
+    let onCancel: () -> Void
+
+    var body: some View {
+        if isVisible {
+            HStack(spacing: 12) {
+                Image(systemName: "hand.tap.fill")
+                    .foregroundStyle(.secondary)
+                Text(compactPreview
+                     ? "Passa a Medio o Grande per posizionare sulla griglia"
+                     : "Tocca una data per posizionare")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Button("Annulla", action: onCancel)
+                    .font(.subheadline.weight(.semibold))
+            }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 10)
+            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .padding(.horizontal, 20)
+            .transition(.move(edge: .top).combined(with: .opacity))
+        }
+    }
+}
+
+// MARK: - Drawer
+
+struct MarkerDrawerContext: Identifiable {
+    let markerID: UUID
+    var id: UUID { markerID }
+}
+
+struct MarkerDrawer: View {
+    @ObservedObject var store: ThemeStore
+    let markerID: UUID
+    let onDragChanged: (DragGesture.Value) -> Void
+    let onDragEnded: (DragGesture.Value) -> Void
+
+    @Environment(\.dismiss) private var dismiss
+    @State private var color: Color
+    @State private var isDragging = false
+
+    private var marker: MarkerRing? {
+        store.markerRings.first { $0.id == markerID }
+    }
+
+    init(store: ThemeStore,
+         markerID: UUID,
+         onDragChanged: @escaping (DragGesture.Value) -> Void,
+         onDragEnded: @escaping (DragGesture.Value) -> Void) {
+        self.store = store
+        self.markerID = markerID
+        self.onDragChanged = onDragChanged
+        self.onDragEnded = onDragEnded
+        let hex = store.markerRings.first { $0.id == markerID }?.colorHex ?? MarkerRing.defaultColorHex
+        _color = State(initialValue: Color(hex: hex))
+    }
+
+    var body: some View {
+        VStack(spacing: 20) {
+            if let marker {
+                DraggableMarkerRing(
+                    marker: marker,
+                    theme: store.theme,
+                    style: .drawer,
+                    isActive: true,
+                    isDragging: isDragging,
+                    onTap: {},
+                    onDragChanged: {
+                        isDragging = true
+                        onDragChanged($0)
+                    },
+                    onDragEnded: {
+                        isDragging = false
+                        onDragEnded($0)
+                    }
+                )
+                .frame(maxWidth: .infinity)
+                .padding(.top, 8)
+
+                ColorPicker("Colore anello", selection: $color, supportsOpacity: false)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
+                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    .onChange(of: color) { _, newColor in
+                        store.updateMarkerColor(id: markerID, colorHex: newColor.hexString)
+                    }
+
+                Button("Rimuovi", systemImage: "trash", role: .destructive) {
+                    store.deleteMarker(marker)
+                    dismiss()
+                }
+            }
+
+            Spacer(minLength: 0)
+        }
+        .padding(20)
+    }
+}
+
+// MARK: - Drag ghost
+
+struct MarkerDragGhost: View {
+    let marker: MarkerRing
+    let theme: CalendarTheme
+    let location: CGPoint
+
+    var body: some View {
+        ZStack {
+            Circle()
+                .fill(theme.peg)
+                .frame(width: 52, height: 52)
+            if let day = marker.day {
+                Text("\(day)")
+                    .font(theme.fontStyle.pegFont(size: 18))
+                    .foregroundStyle(theme.text)
+            }
+            Circle()
+                .strokeBorder(Color(hex: marker.colorHex), lineWidth: 4)
+                .frame(width: 64, height: 64)
+        }
+        .position(location)
+        .allowsHitTesting(false)
+        .shadow(color: .black.opacity(0.15), radius: 8, y: 4)
+    }
+}
+
+// MARK: - Helpers
+
+enum MarkerPlacement {
+    static func day(at location: CGPoint, in frames: [Int: CGRect]) -> Int? {
+        frames.first { $0.value.contains(location) }?.key
+    }
+}

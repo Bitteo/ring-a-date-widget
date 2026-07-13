@@ -8,12 +8,37 @@
 import Foundation
 
 /// How the widget keeps its rings up to date.
-enum CalendarMode: String, Codable {
+enum CalendarMode: String, Codable, Equatable {
     /// The rings jump to today's date at midnight.
     case automatic
     /// Like the physical calendar: the rings stay where the user puts them,
     /// one tap at a time on the widget pegs.
     case manual
+}
+
+extension CalendarMode {
+    var displayTitle: String {
+        switch self {
+        case .manual: "Manuale"
+        case .automatic: "Automatico"
+        }
+    }
+
+    var displayDescription: String {
+        switch self {
+        case .manual:
+            "Tocca le pastiglie sul widget o sull'anteprima per aggiornare la data."
+        case .automatic:
+            "Gli anelli si allineano alla data di oggi e si aggiornano da soli a mezzanotte."
+        }
+    }
+
+    var displayIcon: String {
+        switch self {
+        case .manual: "hand.tap.fill"
+        case .automatic: "clock.arrow.2.circlepath"
+        }
+    }
 }
 
 /// The three ring positions on the board.
@@ -52,6 +77,50 @@ struct RingPositions: Codable, Equatable {
     }
 }
 
+// MARK: - Marker rings
+
+/// A fixed reminder ring on a date peg (1...31), like an extra ring on the
+/// physical calendar. Up to two can be saved at once.
+struct MarkerRing: Identifiable, Codable, Equatable {
+    static let defaultColorHex = "#9B5DE5"
+
+    var id = UUID()
+    /// `nil` while the ring sits in the tray, waiting to be placed.
+    var day: Int?
+    var colorHex: String
+
+    var isPlaced: Bool { day != nil }
+
+    init(id: UUID = UUID(), day: Int?, colorHex: String) {
+        self.id = id
+        if let day {
+            self.day = min(max(day, 1), 31)
+        } else {
+            self.day = nil
+        }
+        self.colorHex = colorHex
+    }
+}
+
+extension ThemeStorage {
+    static let markerRingsKey = "ringADate.markerRings"
+    static let maxMarkerRings = 2
+
+    static func loadMarkerRings() -> [MarkerRing] {
+        guard let data = defaults.data(forKey: markerRingsKey),
+              let markers = try? JSONDecoder().decode([MarkerRing].self, from: data) else {
+            return []
+        }
+        return Array(markers.prefix(maxMarkerRings))
+    }
+
+    static func saveMarkerRings(_ markers: [MarkerRing]) {
+        let trimmed = Array(markers.prefix(maxMarkerRings))
+        guard let data = try? JSONEncoder().encode(trimmed) else { return }
+        defaults.set(data, forKey: markerRingsKey)
+    }
+}
+
 extension ThemeStorage {
     static let modeKey = "ringADate.mode"
     static let ringPositionsKey = "ringADate.ringPositions"
@@ -59,7 +128,7 @@ extension ThemeStorage {
     static func loadMode() -> CalendarMode {
         guard let raw = defaults.string(forKey: modeKey),
               let mode = CalendarMode(rawValue: raw) else {
-            return .automatic
+            return .manual
         }
         return mode
     }

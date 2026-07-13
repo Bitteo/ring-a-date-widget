@@ -17,8 +17,8 @@ home screen widget, with a minimal companion app to customize its colors.
     every peg on the widget is tappable (via an interactive-widget AppIntent)
     and moves its ring there. The small pegs advance their ring by one.
 - **App**: a single screen with a live preview of the widget in all three
-  sizes, six color presets (Classico, Avorio, Notte, Terracotta, Oceano,
-  Ardesia), user-saved presets, and a custom editor for every color:
+  sizes, six color palettes (Classico, Avorio, Notte, Terracotta, Oceano,
+  Ardesia), user-saved palettes, and a custom editor for every color:
   background, pegs, text and the three rings (day, date, month). Changes
   reach the widget immediately.
 
@@ -27,12 +27,12 @@ home screen widget, with a minimal companion app to customize its colors.
 ```
 xcode-ring-a-date/
 ├── Shared/                      Compiled into both the app and the widget
-│   ├── CalendarTheme.swift      Theme model, presets, App Group storage
+│   ├── CalendarTheme.swift      Theme model, palettes, App Group storage
 │   └── RingADateFace.swift      The calendar face (full/split/compact layouts)
 ├── xcode-ring-a-date/           App target
 │   ├── xcode_ring_a_dateApp.swift
 │   ├── ThemeStore.swift         Observable theme + widget reload
-│   ├── ContentView.swift        Preview, presets, color editor
+│   ├── ContentView.swift        Preview, palettes, color editor
 │   └── xcode-ring-a-date.entitlements
 └── RingADateWidget/             Widget extension target
     ├── RingADateWidget.swift    Bundle, timeline provider, entry view

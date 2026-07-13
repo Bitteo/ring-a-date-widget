@@ -40,8 +40,47 @@ extension Color {
 
 // MARK: - Theme model
 
-/// All the colors that make up a calendar face. Stored as hex strings so the
-/// theme is Codable and can travel through the shared App Group defaults.
+/// Compact font styles that stay legible on the widget pegs.
+enum CalendarFontStyle: String, Codable, CaseIterable, Identifiable {
+    case neutral
+    case mono
+    case classic
+
+    var id: String { rawValue }
+
+    var label: String {
+        switch self {
+        case .neutral: "Neutro"
+        case .mono: "Mono"
+        case .classic: "Classico"
+        }
+    }
+
+    func pegFont(size: CGFloat, weight: Font.Weight = .semibold) -> Font {
+        switch self {
+        case .neutral:
+            .system(size: size, weight: weight, design: .default)
+        case .mono:
+            .system(size: size, weight: weight, design: .monospaced)
+        case .classic:
+            .custom("Baskerville-SemiBold", size: size)
+        }
+    }
+
+    /// Maps stored values, including retired styles from earlier app versions.
+    static func migrated(from raw: String) -> CalendarFontStyle {
+        switch raw {
+        case "mono": .mono
+        case "classic", "serif": .classic
+        case "neutral", "rounded": .neutral
+        default: .neutral
+        }
+    }
+}
+
+/// All the colors and typography that make up a calendar face. Stored as hex
+/// strings and a font-style id so the theme is Codable and can travel through
+/// the shared App Group defaults.
 struct CalendarTheme: Codable, Equatable {
     var backgroundHex: String
     var pegHex: String
@@ -49,6 +88,38 @@ struct CalendarTheme: Codable, Equatable {
     var dayRingHex: String
     var dateRingHex: String
     var monthRingHex: String
+    var fontStyle: CalendarFontStyle = .neutral
+
+    init(backgroundHex: String,
+         pegHex: String,
+         textHex: String,
+         dayRingHex: String,
+         dateRingHex: String,
+         monthRingHex: String,
+         fontStyle: CalendarFontStyle = .neutral) {
+        self.backgroundHex = backgroundHex
+        self.pegHex = pegHex
+        self.textHex = textHex
+        self.dayRingHex = dayRingHex
+        self.dateRingHex = dateRingHex
+        self.monthRingHex = monthRingHex
+        self.fontStyle = fontStyle
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        backgroundHex = try container.decode(String.self, forKey: .backgroundHex)
+        pegHex = try container.decode(String.self, forKey: .pegHex)
+        textHex = try container.decode(String.self, forKey: .textHex)
+        dayRingHex = try container.decode(String.self, forKey: .dayRingHex)
+        dateRingHex = try container.decode(String.self, forKey: .dateRingHex)
+        monthRingHex = try container.decode(String.self, forKey: .monthRingHex)
+        if let raw = try container.decodeIfPresent(String.self, forKey: .fontStyle) {
+            fontStyle = CalendarFontStyle.migrated(from: raw)
+        } else {
+            fontStyle = .neutral
+        }
+    }
 
     var background: Color { Color(hex: backgroundHex) }
     var peg: Color { Color(hex: pegHex) }
@@ -58,7 +129,7 @@ struct CalendarTheme: Codable, Equatable {
     var monthRing: Color { Color(hex: monthRingHex) }
 }
 
-// MARK: - Presets
+// MARK: - Palettes
 
 struct ThemePreset: Identifiable, Codable, Equatable {
     var id = UUID()
@@ -85,7 +156,8 @@ extension CalendarTheme {
             textHex: "#3B382F",
             dayRingHex: "#D95D39",
             dateRingHex: "#2F6B52",
-            monthRingHex: "#E4B33D"
+            monthRingHex: "#E4B33D",
+            fontStyle: .classic
         )),
         ThemePreset(name: "Notte", theme: CalendarTheme(
             backgroundHex: "#17191C",
@@ -93,7 +165,8 @@ extension CalendarTheme {
             textHex: "#E8E6E1",
             dayRingHex: "#F2A65A",
             dateRingHex: "#7FB7BE",
-            monthRingHex: "#D9D4C7"
+            monthRingHex: "#D9D4C7",
+            fontStyle: .mono
         )),
         ThemePreset(name: "Terracotta", theme: CalendarTheme(
             backgroundHex: "#B25B38",
@@ -150,7 +223,7 @@ enum ThemeStorage {
         defaults.set(data, forKey: themeKey)
     }
 
-    // MARK: User-created presets
+    // MARK: User-created palettes
 
     static func loadCustomPresets() -> [ThemePreset] {
         guard let data = defaults.data(forKey: customPresetsKey),
@@ -165,7 +238,7 @@ enum ThemeStorage {
         defaults.set(data, forKey: customPresetsKey)
     }
 
-    /// Default name offered for the next preset ("Palette 1", "Palette 2"...).
+    /// Default name offered for the next palette ("Palette 1", "Palette 2"...).
     /// The counter advances on every creation, even if the user renames.
     static func nextPaletteName() -> String {
         "Palette \(defaults.integer(forKey: paletteCounterKey) + 1)"
