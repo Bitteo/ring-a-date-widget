@@ -133,12 +133,16 @@ struct DraggableMarkerRing: View {
             }
         }
         .contentShape(Rectangle())
-        .onTapGesture(perform: onTap)
-        .gesture(
+        // Drag takes precedence once the finger moves past the threshold; a
+        // stationary touch falls through to the tap, so selecting a marker
+        // and then dragging the same one both work, in either order. The
+        // 8pt minimum keeps the long-press context menu usable.
+        .highPriorityGesture(
             DragGesture(minimumDistance: 8, coordinateSpace: .global)
                 .onChanged(onDragChanged)
                 .onEnded(onDragEnded)
         )
+        .onTapGesture(perform: onTap)
         .accessibilityLabel(marker.day.map { "Marcatore giorno \($0)" } ?? "Marcatore da posizionare")
         .accessibilityAddTraits(isActive ? .isSelected : [])
     }
