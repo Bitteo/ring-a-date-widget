@@ -13,6 +13,8 @@ struct MarkerTray: View {
     @ObservedObject var store: ThemeStore
     let theme: CalendarTheme
     let draggingMarkerID: UUID?
+    /// Shrinks chips and hides captions while the content below scrolls up.
+    var isCompact: Bool = false
     let onDragChanged: (UUID, DragGesture.Value) -> Void
     let onDragEnded: (UUID, DragGesture.Value) -> Void
     let onCreateMarker: () -> Void
@@ -20,7 +22,7 @@ struct MarkerTray: View {
     var body: some View {
         // At most two markers plus the add chip, so the row always fits:
         // center it instead of scrolling.
-        HStack(alignment: .center, spacing: 14) {
+        HStack(alignment: .center, spacing: isCompact ? 10 : 14) {
             ForEach(store.markerRings) { marker in
                 DraggableMarkerRing(
                     marker: marker,
@@ -28,6 +30,7 @@ struct MarkerTray: View {
                     style: .tray,
                     isActive: store.activeMarkerID == marker.id,
                     isDragging: draggingMarkerID == marker.id,
+                    isCompact: isCompact,
                     onTap: { store.activateMarker(id: marker.id) },
                     onDragChanged: { onDragChanged(marker.id, $0) },
                     onDragEnded: { onDragEnded(marker.id, $0) }
@@ -40,12 +43,12 @@ struct MarkerTray: View {
             }
 
             if store.markerRings.count < ThemeStorage.maxMarkerRings {
-                AddMarkerChip(action: onCreateMarker)
+                AddMarkerChip(isCompact: isCompact, action: onCreateMarker)
             }
         }
         .frame(maxWidth: .infinity, alignment: .center)
         .padding(.horizontal, 20)
-        .padding(.vertical, 4)
+        .padding(.vertical, isCompact ? 0 : 4)
     }
 }
 
@@ -93,12 +96,17 @@ struct DraggableMarkerRing: View {
     let style: Style
     let isActive: Bool
     var isDragging: Bool = false
+    var isCompact: Bool = false
     let onTap: () -> Void
     let onDragChanged: (DragGesture.Value) -> Void
     let onDragEnded: (DragGesture.Value) -> Void
 
+    private var compactScale: CGFloat {
+        style == .tray && isCompact ? 0.62 : 1
+    }
+
     var body: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: isCompact ? 0 : 8) {
             ZStack {
                 Circle()
                     .fill(theme.peg)
@@ -121,15 +129,16 @@ struct DraggableMarkerRing: View {
                 }
             }
             .frame(width: style.selectionSize, height: style.selectionSize)
-            .scaleEffect(isActive ? 1.05 : 1)
+            .scaleEffect((isActive ? 1.05 : 1) * compactScale)
             .opacity(isDragging ? 0.35 : 1)
             .animation(.spring(response: 0.3, dampingFraction: 0.72), value: isActive)
 
-            if style == .tray {
+            if style == .tray, !isCompact {
                 Text(marker.day.map { "Giorno \($0)" } ?? "Da posizionare")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .frame(width: 88)
+                    .transition(.opacity.combined(with: .move(edge: .top)))
             }
         }
         .contentShape(Rectangle())
@@ -155,13 +164,14 @@ struct DraggableMarkerRing: View {
 /// the next marker sitting to the right of the existing ones. It mirrors
 /// the marker chip's ring + caption layout so the two line up in the row.
 struct AddMarkerChip: View {
+    var isCompact: Bool = false
     let action: () -> Void
 
     private let style = DraggableMarkerRing.Style.tray
 
     var body: some View {
         Button(action: action) {
-            VStack(spacing: 8) {
+            VStack(spacing: isCompact ? 0 : 8) {
                 Circle()
                     .strokeBorder(
                         Color.secondary.opacity(0.5),
@@ -174,11 +184,15 @@ struct AddMarkerChip: View {
                             .foregroundStyle(.secondary)
                     }
                     .frame(width: style.selectionSize, height: style.selectionSize)
+                    .scaleEffect(isCompact ? 0.62 : 1)
 
-                Text("Aggiungi")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .frame(width: 88)
+                if !isCompact {
+                    Text("Aggiungi")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .frame(width: 88)
+                        .transition(.opacity.combined(with: .move(edge: .top)))
+                }
             }
         }
         .buttonStyle(.plain)

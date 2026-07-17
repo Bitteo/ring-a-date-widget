@@ -20,6 +20,7 @@ struct ContentView: View {
     @State private var dragLocation: CGPoint?
     @State private var placementFeedback = 0
     @State private var markerCreationFeedback = 0
+    @State private var isMarkerTrayCompact = false
     @Environment(\.scenePhase) private var scenePhase
 
     private var isPlacementActive: Bool {
@@ -37,10 +38,14 @@ struct ContentView: View {
                 store: store,
                 theme: store.theme,
                 draggingMarkerID: dragMarkerID,
+                isCompact: isMarkerTrayCompact && !isPlacementActive,
                 onDragChanged: handleMarkerDragChanged,
                 onDragEnded: handleMarkerDragEnded,
                 onCreateMarker: createMarker
             )
+            .animation(.spring(response: 0.35, dampingFraction: 0.82), value: isMarkerTrayCompact)
+            .animation(.spring(response: 0.35, dampingFraction: 0.82), value: isPlacementActive)
+
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
                     presetSection
@@ -50,7 +55,17 @@ struct ContentView: View {
                         .padding(.horizontal, 20)
                 }
                 .padding(.bottom, 24)
+                .background {
+                    GeometryReader { geometry in
+                        Color.clear.preference(
+                            key: HomeScrollOffsetKey.self,
+                            value: -geometry.frame(in: .named("homeScroll")).minY
+                        )
+                    }
+                }
             }
+            .coordinateSpace(name: "homeScroll")
+            .onPreferenceChange(HomeScrollOffsetKey.self, perform: updateMarkerTrayCompact)
         }
         .padding(.top, 12)
         .background(Color(uiColor: .systemGroupedBackground))
@@ -189,6 +204,14 @@ struct ContentView: View {
     private func openMarkerDrawer(for day: Int) {
         guard let marker = store.markerRings.first(where: { $0.day == day }) else { return }
         markerDrawer = MarkerDrawerContext(markerID: marker.id)
+    }
+
+    /// Compacts the marker tray once the user scrolls the lower content up,
+    /// and expands it again near the top. Placement mode always keeps it open.
+    private func updateMarkerTrayCompact(_ offset: CGFloat) {
+        let shouldCompact = offset > 28
+        guard shouldCompact != isMarkerTrayCompact else { return }
+        isMarkerTrayCompact = shouldCompact
     }
 
     // MARK: - Palettes
@@ -853,4 +876,14 @@ private extension View {
 
 #Preview {
     ContentView()
+}
+
+// MARK: - Scroll tracking
+
+private struct HomeScrollOffsetKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
+    }
 }
