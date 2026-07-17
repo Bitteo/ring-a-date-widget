@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 struct ContentView: View {
     @StateObject private var store = ThemeStore()
@@ -18,8 +19,14 @@ struct ContentView: View {
     @State private var dateCellFrames: [Int: CGRect] = [:]
     @State private var dragMarkerID: UUID?
     @State private var dragLocation: CGPoint?
+    @State private var dragTargetDay: Int?
+    @State private var returningGhost: MarkerReturningGhost?
     @State private var placementFeedback = 0
     @State private var markerCreationFeedback = 0
+    @State private var selectionFeedback = 0
+    @State private var missFeedback = 0
+    @State private var deleteFeedback = 0
+    @State private var hoverFeedback = 0
     @State private var isMarkerTrayCompact = false
     @Environment(\.scenePhase) private var scenePhase
 
@@ -41,7 +48,9 @@ struct ContentView: View {
                 isCompact: isMarkerTrayCompact && !isPlacementActive,
                 onDragChanged: handleMarkerDragChanged,
                 onDragEnded: handleMarkerDragEnded,
-                onCreateMarker: createMarker
+                onCreateMarker: createMarker,
+                onActivateMarker: activateMarker,
+                onDeleteMarker: deleteMarker
             )
             .animation(.spring(response: 0.35, dampingFraction: 0.82), value: isMarkerTrayCompact)
             .animation(.spring(response: 0.35, dampingFraction: 0.82), value: isPlacementActive)
@@ -55,17 +64,12 @@ struct ContentView: View {
                         .padding(.horizontal, 20)
                 }
                 .padding(.bottom, 24)
-                .background {
-                    GeometryReader { geometry in
-                        Color.clear.preference(
-                            key: HomeScrollOffsetKey.self,
-                            value: -geometry.frame(in: .named("homeScroll")).minY
-                        )
-                    }
-                }
             }
-            .coordinateSpace(name: "homeScroll")
-            .onPreferenceChange(HomeScrollOffsetKey.self, perform: updateMarkerTrayCompact)
+            .onScrollGeometryChange(for: CGFloat.self) { geometry in
+                geometry.contentOffset.y
+            } action: { _, offset in
+                updateMarkerTrayCompact(offset)
+            }
         }
         .animation(.spring(response: 0.35, dampingFraction: 0.82), value: isMarkerTrayCompact)
         .padding(.top, 12)
@@ -74,6 +78,13 @@ struct ContentView: View {
             if let dragMarkerID, let dragLocation,
                let marker = store.markerRings.first(where: { $0.id == dragMarkerID }) {
                 MarkerDragGhost(marker: marker, theme: store.theme, location: dragLocation)
+            } else if let returningGhost {
+                MarkerDragGhost(
+                    marker: returningGhost.marker,
+                    theme: store.theme,
+                    location: returningGhost.location
+                )
+                .opacity(returningGhost.opacity)
             }
         }
         .onChange(of: scenePhase) { _, phase in
@@ -104,12 +115,14 @@ struct ContentView: View {
                 store: store,
                 markerID: context.markerID,
                 onDragChanged: { value in
-                    dragMarkerID = context.markerID
-                    dragLocation = value.location
+                    handleMarkerDragChanged(markerID: context.markerID, value: value)
                 },
                 onDragEnded: { value in
                     handleMarkerDragEnded(markerID: context.markerID, value: value)
                     markerDrawer = nil
+                },
+                onDelete: {
+                    deleteMarker(id: context.markerID)
                 }
             )
             .presentationDetents([.fraction(0.4)])
@@ -119,6 +132,10 @@ struct ContentView: View {
         }
         .sensoryFeedback(.impact(weight: .medium), trigger: placementFeedback)
         .sensoryFeedback(.impact(weight: .light), trigger: markerCreationFeedback)
+        .sensoryFeedback(.selection, trigger: selectionFeedback)
+        .sensoryFeedback(.selection, trigger: hoverFeedback)
+        .sensoryFeedback(.impact(weight: .light), trigger: missFeedback)
+        .sensoryFeedback(.impact(weight: .light), trigger: deleteFeedback)
     }
 
     // MARK: - Preview
@@ -139,6 +156,7 @@ struct ContentView: View {
                 family: previewFamily,
                 isPlacementMode: isPlacementActive && canPlaceOnPreview,
                 placementHighlight: isPlacementActive && canPlaceOnPreview,
+                highlightedDay: canPlaceOnPreview ? dragTargetDay : nil,
                 onDatePlace: canPlaceOnPreview ? placeActiveMarker(on:) : nil,
                 onDateLongPress: openMarkerDrawer(for:),
                 onDateFramesChange: { dateCellFrames = $0 },
@@ -161,6 +179,7 @@ struct ContentView: View {
             .animation(.spring(response: 0.4, dampingFraction: 0.85), value: previewFamily)
             .animation(.spring(response: 0.5, dampingFraction: 0.72), value: store.previewPositions)
             .animation(.easeInOut(duration: 0.2), value: store.markerRings)
+            .animation(.spring(response: 0.3, dampingFraction: 0.82), value: dragTargetDay)
             .sensoryFeedback(.impact(weight: .light), trigger: store.previewPositions)
         }
         .padding(.horizontal, 20)
@@ -171,35 +190,102 @@ struct ContentView: View {
     private func createMarker() {
         guard store.createMarker() != nil else { return }
         markerCreationFeedback += 1
+        selectionFeedback += 1
+    }
+
+    private func activateMarker(id: UUID) {
+        store.activateMarker(id: id)
+        selectionFeedback += 1
+    }
+
+    private func deleteMarker(_ marker: MarkerRing) {
+        store.deleteMarker(marker)
+        deleteFeedback += 1
+    }
+
+    private func deleteMarker(id: UUID) {
+        guard let marker = store.markerRings.first(where: { $0.id == id }) else { return }
+        deleteMarker(marker)
     }
 
     private func placeActiveMarker(on day: Int) {
         guard let markerID = store.activeMarkerID ?? dragMarkerID else { return }
         store.placeMarker(id: markerID, on: day)
-        dragMarkerID = nil
-        dragLocation = nil
+        clearDragState()
         placementFeedback += 1
     }
 
     private func handleMarkerDragChanged(markerID: UUID, value: DragGesture.Value) {
+        returningGhost = nil
         dragMarkerID = markerID
         dragLocation = value.location
+
         if store.activeMarkerID != markerID {
             store.activateMarker(id: markerID)
+            selectionFeedback += 1
+        }
+
+        guard canPlaceOnPreview else {
+            if dragTargetDay != nil { dragTargetDay = nil }
+            return
+        }
+
+        let day = MarkerPlacement.day(at: value.location, in: dateCellFrames)
+        if day != dragTargetDay {
+            dragTargetDay = day
+            if day != nil {
+                hoverFeedback += 1
+            }
         }
     }
 
     private func handleMarkerDragEnded(markerID: UUID, value: DragGesture.Value) {
-        defer {
-            dragMarkerID = nil
-            dragLocation = nil
-        }
-        guard canPlaceOnPreview,
-              let day = MarkerPlacement.day(at: value.location, in: dateCellFrames) else {
+        let location = value.location
+        let home = value.startLocation
+        let marker = store.markerRings.first { $0.id == markerID }
+
+        if canPlaceOnPreview,
+           let day = MarkerPlacement.day(at: location, in: dateCellFrames) {
+            store.placeMarker(id: markerID, on: day)
+            placementFeedback += 1
+            clearDragState()
             return
         }
-        store.placeMarker(id: markerID, on: day)
-        placementFeedback += 1
+
+        // Miss: elastic return to the tray grab point.
+        missFeedback += 1
+        dragMarkerID = nil
+        dragLocation = nil
+        dragTargetDay = nil
+
+        guard let marker else { return }
+        returningGhost = MarkerReturningGhost(marker: marker, location: location, opacity: 1)
+        withAnimation(.spring(response: 0.35, dampingFraction: 0.82)) {
+            returningGhost = MarkerReturningGhost(marker: marker, location: home, opacity: 1)
+        }
+        Task { @MainActor in
+            try? await Task.sleep(for: .milliseconds(280))
+            withAnimation(.easeOut(duration: 0.12)) {
+                if let current = returningGhost, current.marker.id == marker.id {
+                    returningGhost = MarkerReturningGhost(
+                        marker: current.marker,
+                        location: current.location,
+                        opacity: 0
+                    )
+                }
+            }
+            try? await Task.sleep(for: .milliseconds(120))
+            if returningGhost?.marker.id == marker.id {
+                returningGhost = nil
+            }
+        }
+    }
+
+    private func clearDragState() {
+        dragMarkerID = nil
+        dragLocation = nil
+        dragTargetDay = nil
+        returningGhost = nil
     }
 
     private func openMarkerDrawer(for day: Int) {
@@ -207,10 +293,13 @@ struct ContentView: View {
         markerDrawer = MarkerDrawerContext(markerID: marker.id)
     }
 
-    /// Compacts the marker tray once the user scrolls the lower content up,
-    /// and expands it again near the top. Placement mode always keeps it open.
+    /// Compacts the marker tray once the lower content scrolls up, and expands
+    /// it again near the top. Hysteresis avoids flicker when the tray resize
+    /// changes ScrollView height. Placement mode always keeps it open.
     private func updateMarkerTrayCompact(_ offset: CGFloat) {
-        let shouldCompact = offset > 12
+        let shouldCompact = isMarkerTrayCompact
+            ? offset > 4
+            : offset > 20
         guard shouldCompact != isMarkerTrayCompact else { return }
         withAnimation(.spring(response: 0.35, dampingFraction: 0.82)) {
             isMarkerTrayCompact = shouldCompact
@@ -421,6 +510,7 @@ struct RingADatePreviewCard: View {
     let family: PreviewFamily
     var isPlacementMode: Bool = false
     var placementHighlight: Bool = false
+    var highlightedDay: Int? = nil
     var onDatePlace: ((Int) -> Void)? = nil
     var onDateLongPress: ((Int) -> Void)? = nil
     var onDateFramesChange: (([Int: CGRect]) -> Void)? = nil
@@ -432,6 +522,7 @@ struct RingADatePreviewCard: View {
          family: PreviewFamily,
          isPlacementMode: Bool = false,
          placementHighlight: Bool = false,
+         highlightedDay: Int? = nil,
          onDatePlace: ((Int) -> Void)? = nil,
          onDateLongPress: ((Int) -> Void)? = nil,
          onDateFramesChange: (([Int: CGRect]) -> Void)? = nil,
@@ -442,6 +533,7 @@ struct RingADatePreviewCard: View {
         self.family = family
         self.isPlacementMode = isPlacementMode
         self.placementHighlight = placementHighlight
+        self.highlightedDay = highlightedDay
         self.onDatePlace = onDatePlace
         self.onDateLongPress = onDateLongPress
         self.onDateFramesChange = onDateFramesChange
@@ -463,6 +555,7 @@ struct RingADatePreviewCard: View {
                 onPegTap: onPegTap,
                 isPlacementMode: isPlacementMode,
                 placementHighlight: placementHighlight,
+                highlightedDay: highlightedDay,
                 onDatePlace: onDatePlace,
                 onDateLongPress: onDateLongPress,
                 onDateFramesChange: onDateFramesChange
@@ -723,33 +816,39 @@ struct ThemeColorGroup: View {
 struct ThemeColorCard: View {
     let label: String
     @Binding var color: Color
+    @State private var isPickerPresented = false
 
     var body: some View {
-        ZStack(alignment: .topLeading) {
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .fill(color)
-                .overlay {
-                    RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .strokeBorder(Color.primary.opacity(0.08), lineWidth: 1)
-                }
+        Button {
+            isPickerPresented = true
+        } label: {
+            ZStack(alignment: .topLeading) {
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .fill(color)
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                            .strokeBorder(Color.primary.opacity(0.08), lineWidth: 1)
+                    }
 
-            Text(label)
-                .font(.subheadline.weight(.medium))
-                .foregroundStyle(labelForeground)
-                .padding(12)
-                .allowsHitTesting(false)
+                Text(label)
+                    .font(.subheadline.weight(.medium))
+                    .foregroundStyle(labelForeground)
+                    .padding(12)
 
-            colorWheelDecoration
+                colorWheelDecoration
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: 84)
+            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .contentShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
         }
-        .frame(height: 84)
-        .background {
-            ColorPicker("", selection: $color, supportsOpacity: false)
-                .labelsHidden()
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .opacity(0.02)
+        .buttonStyle(.plain)
+        .accessibilityLabel(label)
+        .sheet(isPresented: $isPickerPresented) {
+            SystemColorPickerSheet(selection: $color)
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
         }
-        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-        .contentShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
     }
 
     private var colorWheelDecoration: some View {
@@ -769,11 +868,48 @@ struct ThemeColorCard: View {
         .frame(width: 30, height: 30)
         .padding(10)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
-        .allowsHitTesting(false)
     }
 
     private var labelForeground: Color {
         color.isPerceivedLight ? .black.opacity(0.82) : .white.opacity(0.95)
+    }
+}
+
+/// Wraps UIKit's color picker so a tap on our custom card can open it
+/// reliably, including from inside another sheet.
+private struct SystemColorPickerSheet: UIViewControllerRepresentable {
+    @Binding var selection: Color
+
+    func makeUIViewController(context: Context) -> UIColorPickerViewController {
+        let picker = UIColorPickerViewController()
+        picker.supportsAlpha = false
+        picker.selectedColor = UIColor(selection)
+        picker.delegate = context.coordinator
+        return picker
+    }
+
+    func updateUIViewController(_ picker: UIColorPickerViewController, context: Context) {
+        context.coordinator.parent = self
+        let uiColor = UIColor(selection)
+        if !picker.selectedColor.isEqual(uiColor) {
+            picker.selectedColor = uiColor
+        }
+    }
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+
+    final class Coordinator: NSObject, UIColorPickerViewControllerDelegate {
+        var parent: SystemColorPickerSheet
+
+        init(_ parent: SystemColorPickerSheet) {
+            self.parent = parent
+        }
+
+        func colorPickerViewControllerDidSelectColor(_ viewController: UIColorPickerViewController) {
+            parent.selection = Color(uiColor: viewController.selectedColor)
+        }
     }
 }
 
@@ -879,14 +1015,4 @@ private extension View {
 
 #Preview {
     ContentView()
-}
-
-// MARK: - Scroll tracking
-
-private struct HomeScrollOffsetKey: PreferenceKey {
-    static var defaultValue: CGFloat = 0
-
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = nextValue()
-    }
 }

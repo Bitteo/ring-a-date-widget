@@ -36,6 +36,8 @@ struct RingADateFace: View {
     let isPlacementMode: Bool
     /// Highlights date pegs as drop targets.
     let placementHighlight: Bool
+    /// Day currently under a dragging marker, for stronger live highlight.
+    let highlightedDay: Int?
     /// Called when the user taps a date peg to place the active marker.
     let onDatePlace: ((Int) -> Void)?
     /// Called on long press over a date that already has a marker.
@@ -60,6 +62,7 @@ struct RingADateFace: View {
          onPegTap: ((String, Int) -> Void)? = nil,
          isPlacementMode: Bool = false,
          placementHighlight: Bool = false,
+         highlightedDay: Int? = nil,
          onDatePlace: ((Int) -> Void)? = nil,
          onDateLongPress: ((Int) -> Void)? = nil,
          onDateFramesChange: (([Int: CGRect]) -> Void)? = nil) {
@@ -71,6 +74,7 @@ struct RingADateFace: View {
         self.onPegTap = onPegTap
         self.isPlacementMode = isPlacementMode
         self.placementHighlight = placementHighlight
+        self.highlightedDay = highlightedDay
         self.onDatePlace = onDatePlace
         self.onDateLongPress = onDateLongPress
         self.onDateFramesChange = onDateFramesChange
@@ -279,12 +283,24 @@ struct RingADateFace: View {
 
     @ViewBuilder
     private func datePegButton(value: Int, cell: CGFloat, matchID: String) -> some View {
+        let isHotTarget = highlightedDay == value
         let peg = gridPeg("\(value)", cell: cell, matchID: matchID, day: value)
             .overlay {
                 if placementHighlight {
                     Circle()
-                        .strokeBorder(Color.accentColor.opacity(0.35), lineWidth: cell * 0.06)
-                        .frame(width: cell * 1.08, height: cell * 1.08)
+                        .fill(Color.accentColor.opacity(isHotTarget ? 0.18 : 0))
+                        .frame(width: cell * 1.12, height: cell * 1.12)
+                    Circle()
+                        .strokeBorder(
+                            Color.accentColor.opacity(isHotTarget ? 0.9 : 0.3),
+                            lineWidth: cell * (isHotTarget ? 0.1 : 0.06)
+                        )
+                        .frame(
+                            width: cell * (isHotTarget ? 1.18 : 1.08),
+                            height: cell * (isHotTarget ? 1.18 : 1.08)
+                        )
+                        .scaleEffect(isHotTarget ? 1.04 : 1)
+                        .animation(.spring(response: 0.3, dampingFraction: 0.82), value: isHotTarget)
                 }
             }
             .background(dateFrameReader(for: value))

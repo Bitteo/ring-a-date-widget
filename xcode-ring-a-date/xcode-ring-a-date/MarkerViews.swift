@@ -18,6 +18,8 @@ struct MarkerTray: View {
     let onDragChanged: (UUID, DragGesture.Value) -> Void
     let onDragEnded: (UUID, DragGesture.Value) -> Void
     let onCreateMarker: () -> Void
+    let onActivateMarker: (UUID) -> Void
+    let onDeleteMarker: (MarkerRing) -> Void
 
     var body: some View {
         // At most four markers plus the add chip, so the row always fits:
@@ -31,13 +33,13 @@ struct MarkerTray: View {
                     isActive: store.activeMarkerID == marker.id,
                     isDragging: draggingMarkerID == marker.id,
                     isCompact: isCompact,
-                    onTap: { store.activateMarker(id: marker.id) },
+                    onTap: { onActivateMarker(marker.id) },
                     onDragChanged: { onDragChanged(marker.id, $0) },
                     onDragEnded: { onDragEnded(marker.id, $0) }
                 )
                 .contextMenu {
                     Button("Elimina", systemImage: "trash", role: .destructive) {
-                        store.deleteMarker(marker)
+                        onDeleteMarker(marker)
                     }
                 }
             }
@@ -220,6 +222,7 @@ struct MarkerDrawer: View {
     let markerID: UUID
     let onDragChanged: (DragGesture.Value) -> Void
     let onDragEnded: (DragGesture.Value) -> Void
+    var onDelete: (() -> Void)?
 
     @Environment(\.dismiss) private var dismiss
     @State private var color: Color
@@ -232,11 +235,13 @@ struct MarkerDrawer: View {
     init(store: ThemeStore,
          markerID: UUID,
          onDragChanged: @escaping (DragGesture.Value) -> Void,
-         onDragEnded: @escaping (DragGesture.Value) -> Void) {
+         onDragEnded: @escaping (DragGesture.Value) -> Void,
+         onDelete: (() -> Void)? = nil) {
         self.store = store
         self.markerID = markerID
         self.onDragChanged = onDragChanged
         self.onDragEnded = onDragEnded
+        self.onDelete = onDelete
         let hex = store.markerRings.first { $0.id == markerID }?.colorHex ?? MarkerRing.defaultColorHex
         _color = State(initialValue: Color(hex: hex))
     }
@@ -272,7 +277,7 @@ struct MarkerDrawer: View {
                     }
 
                 Button("Rimuovi", systemImage: "trash", role: .destructive) {
-                    store.deleteMarker(marker)
+                    onDelete?()
                     dismiss()
                 }
             }
@@ -284,6 +289,12 @@ struct MarkerDrawer: View {
 }
 
 // MARK: - Drag ghost
+
+struct MarkerReturningGhost: Equatable {
+    let marker: MarkerRing
+    var location: CGPoint
+    var opacity: Double
+}
 
 struct MarkerDragGhost: View {
     let marker: MarkerRing
