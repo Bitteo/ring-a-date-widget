@@ -28,6 +28,7 @@ struct ContentView: View {
     @State private var deleteFeedback = 0
     @State private var hoverFeedback = 0
     @State private var isMarkerTrayCompact = false
+    @State private var isPaletteExpanded = false
     @Environment(\.scenePhase) private var scenePhase
 
     private var isPlacementActive: Bool {
@@ -314,45 +315,77 @@ struct ContentView: View {
                 sectionTitle("Palette")
                 Spacer()
                 Button {
-                    openPresetEditor(.new)
+                    withAnimation(.spring(response: 0.35, dampingFraction: 0.82)) {
+                        isPaletteExpanded.toggle()
+                    }
                 } label: {
-                    Image(systemName: "plus")
+                    Image(systemName: "chevron.down")
                         .font(.body.weight(.semibold))
                         .foregroundStyle(.secondary)
+                        .rotationEffect(.degrees(isPaletteExpanded ? 180 : 0))
                         .frame(width: 32, height: 32)
                         .background(Color(uiColor: .secondarySystemGroupedBackground))
                         .clipShape(Circle())
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel("Nuova palette")
+                .accessibilityLabel(isPaletteExpanded ? "Comprimi palette" : "Espandi palette")
             }
             .padding(.horizontal, 20)
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 12) {
+
+            if isPaletteExpanded {
+                LazyVGrid(
+                    columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 3),
+                    spacing: 12
+                ) {
+                    AddPaletteSwatch(action: { openPresetEditor(.new) })
                     ForEach(store.customPresets) { preset in
-                        PresetSwatch(preset: preset,
-                                     isSelected: store.selectedPresetID == preset.id) {
-                            store.theme = preset.theme
-                            openPresetEditor(.edit(preset))
-                        }
-                        .frame(width: 96)
-                        .contextMenu {
-                            Button("Elimina", systemImage: "trash", role: .destructive) {
-                                store.deletePreset(preset)
-                            }
-                        }
+                        presetSwatch(preset, width: nil)
                     }
                     ForEach(CalendarTheme.presets) { preset in
-                        PresetSwatch(preset: preset,
-                                     isSelected: store.selectedPresetID == preset.id) {
-                            store.theme = preset.theme
-                            openPresetEditor(.edit(preset))
-                        }
-                        .frame(width: 96)
+                        presetSwatch(preset, width: nil)
                     }
                 }
                 .padding(.horizontal, 20)
+                .transition(.opacity.combined(with: .move(edge: .top)))
+            } else {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 12) {
+                        AddPaletteSwatch(action: { openPresetEditor(.new) })
+                            .frame(width: 96)
+                        ForEach(store.customPresets) { preset in
+                            presetSwatch(preset, width: 96)
+                        }
+                        ForEach(CalendarTheme.presets) { preset in
+                            presetSwatch(preset, width: 96)
+                        }
+                    }
+                    .padding(.horizontal, 20)
+                }
+                .transition(.opacity)
             }
+        }
+        .animation(.spring(response: 0.35, dampingFraction: 0.82), value: isPaletteExpanded)
+    }
+
+    @ViewBuilder
+    private func presetSwatch(_ preset: ThemePreset, width: CGFloat?) -> some View {
+        let swatch = PresetSwatch(preset: preset,
+                                  isSelected: store.selectedPresetID == preset.id) {
+            store.theme = preset.theme
+            openPresetEditor(.edit(preset))
+        }
+
+        if store.customPresets.contains(where: { $0.id == preset.id }) {
+            swatch
+                .frame(width: width)
+                .contextMenu {
+                    Button("Elimina", systemImage: "trash", role: .destructive) {
+                        store.deletePreset(preset)
+                    }
+                }
+        } else {
+            swatch
+                .frame(width: width)
         }
     }
 
@@ -622,6 +655,7 @@ struct PresetSwatch: View {
                 Text(preset.name)
                     .font(.caption)
                     .foregroundStyle(isSelected ? Color.accentColor : .secondary)
+                    .lineLimit(1)
             }
         }
         .buttonStyle(.plain)
@@ -632,6 +666,35 @@ struct PresetSwatch: View {
             .strokeBorder(color, lineWidth: 3.5)
             .background(Circle().fill(preset.theme.peg))
             .frame(width: 16, height: 16)
+    }
+}
+
+/// Dashed tile that opens the new-palette flow, matching PresetSwatch layout.
+struct AddPaletteSwatch: View {
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 8) {
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .strokeBorder(
+                        Color.secondary.opacity(0.45),
+                        style: StrokeStyle(lineWidth: 1.5, dash: [5, 4])
+                    )
+                    .frame(height: 56)
+                    .overlay {
+                        Image(systemName: "plus")
+                            .font(.title3.weight(.semibold))
+                            .foregroundStyle(.secondary)
+                    }
+
+                Text("Aggiungi")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Nuova palette")
     }
 }
 

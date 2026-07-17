@@ -13,7 +13,7 @@ struct MarkerTray: View {
     @ObservedObject var store: ThemeStore
     let theme: CalendarTheme
     let draggingMarkerID: UUID?
-    /// Shrinks chips and hides captions while the content below scrolls up.
+    /// Shrinks chips while the content below scrolls up.
     var isCompact: Bool = false
     let onDragChanged: (UUID, DragGesture.Value) -> Void
     let onDragEnded: (UUID, DragGesture.Value) -> Void
@@ -114,41 +114,31 @@ struct DraggableMarkerRing: View {
     private var selectionSize: CGFloat { style.selectionSize * sizeScale }
 
     var body: some View {
-        VStack(spacing: isCompact ? 0 : 8) {
-            ZStack {
-                Circle()
-                    .fill(theme.peg)
-                    .frame(width: pegSize, height: pegSize)
+        ZStack {
+            Circle()
+                .fill(theme.peg)
+                .frame(width: pegSize, height: pegSize)
 
-                if let day = marker.day {
-                    Text("\(day)")
-                        .font(theme.fontStyle.pegFont(size: fontSize))
-                        .foregroundStyle(theme.text)
-                }
-
-                Circle()
-                    .strokeBorder(Color(hex: marker.colorHex), lineWidth: ringWidth)
-                    .frame(width: ringSize, height: ringSize)
-
-                if isActive {
-                    Circle()
-                        .strokeBorder(Color.accentColor, lineWidth: 2)
-                        .frame(width: selectionSize, height: selectionSize)
-                }
+            if let day = marker.day {
+                Text("\(day)")
+                    .font(theme.fontStyle.pegFont(size: fontSize))
+                    .foregroundStyle(theme.text)
             }
-            .frame(width: selectionSize, height: selectionSize)
-            .scaleEffect(isActive ? 1.05 : 1)
-            .opacity(isDragging ? 0.35 : 1)
-            .animation(.spring(response: 0.3, dampingFraction: 0.72), value: isActive)
 
-            if style == .tray, !isCompact {
-                Text(marker.day.map { "Giorno \($0)" } ?? "Da posizionare")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .frame(width: 88)
-                    .transition(.opacity.combined(with: .move(edge: .top)))
+            Circle()
+                .strokeBorder(Color(hex: marker.colorHex), lineWidth: ringWidth)
+                .frame(width: ringSize, height: ringSize)
+
+            if isActive {
+                Circle()
+                    .strokeBorder(Color.accentColor, lineWidth: 2)
+                    .frame(width: selectionSize, height: selectionSize)
             }
         }
+        .frame(width: selectionSize, height: selectionSize)
+        .scaleEffect(isActive ? 1.05 : 1)
+        .opacity(isDragging ? 0.35 : 1)
+        .animation(.spring(response: 0.3, dampingFraction: 0.72), value: isActive)
         .contentShape(Rectangle())
         // Drag takes precedence once the finger moves past the threshold; a
         // stationary touch falls through to the tap, so selecting a marker
@@ -169,8 +159,7 @@ struct DraggableMarkerRing: View {
 
 /// A chip the size of a tray marker that creates a new marker when tapped.
 /// Drawn as an empty dotted ring with a plus, so it reads as the slot for
-/// the next marker sitting to the right of the existing ones. It mirrors
-/// the marker chip's ring + caption layout so the two line up in the row.
+/// the next marker sitting to the right of the existing ones.
 struct AddMarkerChip: View {
     var isCompact: Bool = false
     let action: () -> Void
@@ -182,28 +171,18 @@ struct AddMarkerChip: View {
 
     var body: some View {
         Button(action: action) {
-            VStack(spacing: isCompact ? 0 : 8) {
-                Circle()
-                    .strokeBorder(
-                        Color.secondary.opacity(0.5),
-                        style: StrokeStyle(lineWidth: 2, dash: [5, 5])
-                    )
-                    .frame(width: ringSize, height: ringSize)
-                    .overlay {
-                        Image(systemName: "plus")
-                            .font(isCompact ? .body.weight(.semibold) : .title2.weight(.semibold))
-                            .foregroundStyle(.secondary)
-                    }
-                    .frame(width: selectionSize, height: selectionSize)
-
-                if !isCompact {
-                    Text("Aggiungi")
-                        .font(.caption)
+            Circle()
+                .strokeBorder(
+                    Color.secondary.opacity(0.5),
+                    style: StrokeStyle(lineWidth: 2, dash: [5, 5])
+                )
+                .frame(width: ringSize, height: ringSize)
+                .overlay {
+                    Image(systemName: "plus")
+                        .font(isCompact ? .body.weight(.semibold) : .title2.weight(.semibold))
                         .foregroundStyle(.secondary)
-                        .frame(width: 88)
-                        .transition(.opacity.combined(with: .move(edge: .top)))
                 }
-            }
+                .frame(width: selectionSize, height: selectionSize)
         }
         .buttonStyle(.plain)
         .accessibilityLabel("Nuovo marcatore")
