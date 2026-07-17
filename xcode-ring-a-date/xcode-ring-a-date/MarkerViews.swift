@@ -22,7 +22,7 @@ struct MarkerTray: View {
     var body: some View {
         // At most four markers plus the add chip, so the row always fits:
         // center it instead of scrolling.
-        HStack(alignment: .center, spacing: isCompact ? 10 : 14) {
+        HStack(alignment: .center, spacing: isCompact ? 8 : 14) {
             ForEach(store.markerRings) { marker in
                 DraggableMarkerRing(
                     marker: marker,
@@ -101,35 +101,41 @@ struct DraggableMarkerRing: View {
     let onDragChanged: (DragGesture.Value) -> Void
     let onDragEnded: (DragGesture.Value) -> Void
 
-    private var compactScale: CGFloat {
-        style == .tray && isCompact ? 0.62 : 1
+    private var sizeScale: CGFloat {
+        style == .tray && isCompact ? 0.55 : 1
     }
+
+    private var pegSize: CGFloat { style.pegSize * sizeScale }
+    private var ringSize: CGFloat { style.ringSize * sizeScale }
+    private var ringWidth: CGFloat { max(2.5, style.ringWidth * sizeScale) }
+    private var fontSize: CGFloat { style.fontSize * sizeScale }
+    private var selectionSize: CGFloat { style.selectionSize * sizeScale }
 
     var body: some View {
         VStack(spacing: isCompact ? 0 : 8) {
             ZStack {
                 Circle()
                     .fill(theme.peg)
-                    .frame(width: style.pegSize, height: style.pegSize)
+                    .frame(width: pegSize, height: pegSize)
 
                 if let day = marker.day {
                     Text("\(day)")
-                        .font(theme.fontStyle.pegFont(size: style.fontSize))
+                        .font(theme.fontStyle.pegFont(size: fontSize))
                         .foregroundStyle(theme.text)
                 }
 
                 Circle()
-                    .strokeBorder(Color(hex: marker.colorHex), lineWidth: style.ringWidth)
-                    .frame(width: style.ringSize, height: style.ringSize)
+                    .strokeBorder(Color(hex: marker.colorHex), lineWidth: ringWidth)
+                    .frame(width: ringSize, height: ringSize)
 
                 if isActive {
                     Circle()
                         .strokeBorder(Color.accentColor, lineWidth: 2)
-                        .frame(width: style.selectionSize, height: style.selectionSize)
+                        .frame(width: selectionSize, height: selectionSize)
                 }
             }
-            .frame(width: style.selectionSize, height: style.selectionSize)
-            .scaleEffect((isActive ? 1.05 : 1) * compactScale)
+            .frame(width: selectionSize, height: selectionSize)
+            .scaleEffect(isActive ? 1.05 : 1)
             .opacity(isDragging ? 0.35 : 1)
             .animation(.spring(response: 0.3, dampingFraction: 0.72), value: isActive)
 
@@ -168,6 +174,9 @@ struct AddMarkerChip: View {
     let action: () -> Void
 
     private let style = DraggableMarkerRing.Style.tray
+    private var sizeScale: CGFloat { isCompact ? 0.55 : 1 }
+    private var ringSize: CGFloat { style.ringSize * sizeScale }
+    private var selectionSize: CGFloat { style.selectionSize * sizeScale }
 
     var body: some View {
         Button(action: action) {
@@ -177,14 +186,13 @@ struct AddMarkerChip: View {
                         Color.secondary.opacity(0.5),
                         style: StrokeStyle(lineWidth: 2, dash: [5, 5])
                     )
-                    .frame(width: style.ringSize, height: style.ringSize)
+                    .frame(width: ringSize, height: ringSize)
                     .overlay {
                         Image(systemName: "plus")
-                            .font(.title2.weight(.semibold))
+                            .font(isCompact ? .body.weight(.semibold) : .title2.weight(.semibold))
                             .foregroundStyle(.secondary)
                     }
-                    .frame(width: style.selectionSize, height: style.selectionSize)
-                    .scaleEffect(isCompact ? 0.62 : 1)
+                    .frame(width: selectionSize, height: selectionSize)
 
                 if !isCompact {
                     Text("Aggiungi")

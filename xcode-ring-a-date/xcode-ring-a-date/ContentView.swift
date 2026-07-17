@@ -32,7 +32,7 @@ struct ContentView: View {
     }
 
     var body: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: isMarkerTrayCompact && !isPlacementActive ? 8 : 16) {
             previewSection
             MarkerTray(
                 store: store,
@@ -67,6 +67,7 @@ struct ContentView: View {
             .coordinateSpace(name: "homeScroll")
             .onPreferenceChange(HomeScrollOffsetKey.self, perform: updateMarkerTrayCompact)
         }
+        .animation(.spring(response: 0.35, dampingFraction: 0.82), value: isMarkerTrayCompact)
         .padding(.top, 12)
         .background(Color(uiColor: .systemGroupedBackground))
         .overlay {
@@ -209,9 +210,11 @@ struct ContentView: View {
     /// Compacts the marker tray once the user scrolls the lower content up,
     /// and expands it again near the top. Placement mode always keeps it open.
     private func updateMarkerTrayCompact(_ offset: CGFloat) {
-        let shouldCompact = offset > 28
+        let shouldCompact = offset > 12
         guard shouldCompact != isMarkerTrayCompact else { return }
-        isMarkerTrayCompact = shouldCompact
+        withAnimation(.spring(response: 0.35, dampingFraction: 0.82)) {
+            isMarkerTrayCompact = shouldCompact
+        }
     }
 
     // MARK: - Palettes
