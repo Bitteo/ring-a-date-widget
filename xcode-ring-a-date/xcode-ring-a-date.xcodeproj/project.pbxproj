@@ -507,6 +507,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"xcode-ring-a-date/Preview Content\"";
+				DEVELOPMENT_TEAM = 7Z88MTWKUT;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -536,6 +537,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"xcode-ring-a-date/Preview Content\"";
+				DEVELOPMENT_TEAM = 7Z88MTWKUT;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -630,6 +632,7 @@
 				CODE_SIGN_ENTITLEMENTS = RingADateWidget/RingADateWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7Z88MTWKUT;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = RingADateWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Ring a Date";
@@ -656,6 +659,7 @@
 				CODE_SIGN_ENTITLEMENTS = RingADateWidget/RingADateWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7Z88MTWKUT;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = RingADateWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Ring a Date";

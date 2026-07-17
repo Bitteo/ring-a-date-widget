@@ -20,7 +20,7 @@ struct MarkerTray: View {
     let onCreateMarker: () -> Void
 
     var body: some View {
-        // At most two markers plus the add chip, so the row always fits:
+        // At most four markers plus the add chip, so the row always fits:
         // center it instead of scrolling.
         HStack(alignment: .center, spacing: isCompact ? 10 : 14) {
             ForEach(store.markerRings) { marker in

@@ -80,7 +80,7 @@ struct RingPositions: Codable, Equatable {
 // MARK: - Marker rings
 
 /// A fixed reminder ring on a date peg (1...31), like an extra ring on the
-/// physical calendar. Up to two can be saved at once.
+/// physical calendar. Up to four can be saved at once.
 struct MarkerRing: Identifiable, Codable, Equatable {
     static let defaultColorHex = "#9B5DE5"
 
@@ -104,7 +104,7 @@ struct MarkerRing: Identifiable, Codable, Equatable {
 
 extension ThemeStorage {
     static let markerRingsKey = "ringADate.markerRings"
-    static let maxMarkerRings = 2
+    static let maxMarkerRings = 4
 
     static func loadMarkerRings() -> [MarkerRing] {
         guard let data = defaults.data(forKey: markerRingsKey),
